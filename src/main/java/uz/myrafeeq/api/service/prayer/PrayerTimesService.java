@@ -60,7 +60,11 @@ public class PrayerTimesService {
   }
 
   public PrayerTimesResponse calculatePrayerTimesByLocation(
-      double lat, double lon, LocalDate date, CalculationMethod method, String timezone,
+      double lat,
+      double lon,
+      LocalDate date,
+      CalculationMethod method,
+      String timezone,
       Madhab madhab) {
     LocalDate targetDate = date != null ? date : LocalDate.now();
     CalculationMethod calcMethod = method != null ? method : CalculationMethod.MWL;
