@@ -59,6 +59,26 @@
           WantedBy=multi-user.target
       register: ngrok_service
 
+    - name: Remove default nginx site
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      register: nginx_default
+
+    - name: Copy nginx config
+      ansible.builtin.copy:
+        src: ../deploy/nginx/myrafeeq.conf
+        dest: /etc/nginx/sites-available/myrafeeq.conf
+        mode: "0644"
+      register: nginx_conf
+
+    - name: Enable nginx site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/myrafeeq.conf
+        dest: /etc/nginx/sites-enabled/myrafeeq.conf
+        state: link
+      register: nginx_link
+
     - name: Start services
       ansible.builtin.systemd:
         name: "{{ item }}"
@@ -68,6 +88,12 @@
         - docker
         - nginx
         - ngrok
+
+    - name: Reload nginx if config changed
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
+      when: nginx_default.changed or nginx_conf.changed or nginx_link.changed
 
     - name: Restart ngrok if config changed
       ansible.builtin.systemd:
