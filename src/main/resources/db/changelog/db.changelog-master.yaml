@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changes/005-seed-cities.sql
   - include:
       file: db/changelog/changes/006-remove-unsupported-calculation-methods.sql
+  - include:
+      file: db/changelog/changes/007-add-uzbekistan-method.sql
