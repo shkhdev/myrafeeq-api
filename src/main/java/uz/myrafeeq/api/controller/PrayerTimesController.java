@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uz.myrafeeq.api.dto.response.PrayerTimesResponse;
 import uz.myrafeeq.api.enums.CalculationMethod;
+import uz.myrafeeq.api.enums.Madhab;
 import uz.myrafeeq.api.security.AuthenticatedUser;
 import uz.myrafeeq.api.service.prayer.PrayerTimesService;
 
@@ -71,9 +72,13 @@ public class PrayerTimesController {
           CalculationMethod method,
       @Parameter(description = "IANA timezone (defaults to UTC)", example = "Asia/Tashkent")
           @RequestParam(required = false)
-          String timezone) {
+          String timezone,
+      @Parameter(description = "Madhab (defaults to SHAFI)", example = "HANAFI")
+          @RequestParam(required = false)
+          Madhab madhab) {
 
     return ResponseEntity.ok(
-        prayerTimesService.calculatePrayerTimesByLocation(lat, lon, date, method, timezone));
+        prayerTimesService.calculatePrayerTimesByLocation(
+            lat, lon, date, method, timezone, madhab));
   }
 }

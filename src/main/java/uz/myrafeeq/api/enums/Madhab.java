@@ -1,7 +1,7 @@
 package uz.myrafeeq.api.enums;
 
 public enum Madhab {
-  STANDARD(com.batoulapps.adhan.Madhab.SHAFI),
+  SHAFI(com.batoulapps.adhan.Madhab.SHAFI),
   HANAFI(com.batoulapps.adhan.Madhab.HANAFI);
 
   private final com.batoulapps.adhan.Madhab adhanMadhab;

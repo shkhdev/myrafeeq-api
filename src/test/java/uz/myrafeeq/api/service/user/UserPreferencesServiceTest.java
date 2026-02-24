@@ -97,7 +97,7 @@ class UserPreferencesServiceTest {
         new UpdatePreferencesRequest(
             null,
             CalculationMethod.ISNA,
-            Madhab.STANDARD,
+            Madhab.SHAFI,
             null,
             null,
             null,
@@ -117,7 +117,7 @@ class UserPreferencesServiceTest {
 
     assertThat(result).isEqualTo(expectedResponse);
     assertThat(prefs.getCalculationMethod()).isEqualTo(CalculationMethod.ISNA);
-    assertThat(prefs.getMadhab()).isEqualTo(Madhab.STANDARD);
+    assertThat(prefs.getMadhab()).isEqualTo(Madhab.SHAFI);
     verify(preferencesRepository).save(prefs);
   }
 

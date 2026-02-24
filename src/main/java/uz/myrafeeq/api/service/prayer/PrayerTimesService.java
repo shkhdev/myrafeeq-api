@@ -60,7 +60,8 @@ public class PrayerTimesService {
   }
 
   public PrayerTimesResponse calculatePrayerTimesByLocation(
-      double lat, double lon, LocalDate date, CalculationMethod method, String timezone) {
+      double lat, double lon, LocalDate date, CalculationMethod method, String timezone,
+      Madhab madhab) {
     LocalDate targetDate = date != null ? date : LocalDate.now();
     CalculationMethod calcMethod = method != null ? method : CalculationMethod.MWL;
 
@@ -69,7 +70,7 @@ public class PrayerTimesService {
             lat,
             lon,
             calcMethod,
-            Madhab.STANDARD,
+            madhab != null ? madhab : Madhab.SHAFI,
             HighLatitudeRule.MIDDLE_OF_NIGHT,
             timezone != null ? timezone : "UTC",
             Map.of(),
@@ -160,7 +161,7 @@ public class PrayerTimesService {
           prefs.getCalculationMethod() != null
               ? prefs.getCalculationMethod()
               : CalculationMethod.MWL,
-          prefs.getMadhab() != null ? prefs.getMadhab() : Madhab.STANDARD,
+          prefs.getMadhab() != null ? prefs.getMadhab() : Madhab.SHAFI,
           prefs.getHighLatitudeRule() != null
               ? prefs.getHighLatitudeRule()
               : HighLatitudeRule.MIDDLE_OF_NIGHT,
