@@ -48,7 +48,8 @@ public class SecurityConfiguration {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOriginPatterns(List.of("*"));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id"));
+    config.setAllowedHeaders(
+        List.of("Authorization", "Content-Type", "X-Request-Id", "Ngrok-Skip-Browser-Warning"));
     config.setExposedHeaders(List.of("X-Request-Id"));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
