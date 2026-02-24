@@ -95,7 +95,9 @@ public class UserPreferencesService {
             .orElseThrow(() -> new CityNotFoundException("City not found: " + request.cityId()));
 
     CalculationMethod method =
-        city.getRecommendedMethod() != null ? city.getRecommendedMethod() : CalculationMethod.MWL;
+        city.getCountry() != null && city.getCountry().getDefaultMethod() != null
+            ? city.getCountry().getDefaultMethod()
+            : CalculationMethod.MWL;
 
     UserPreferencesEntity prefs =
         UserPreferencesEntity.builder()

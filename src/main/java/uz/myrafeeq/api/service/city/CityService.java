@@ -9,7 +9,6 @@ import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.CitySearchResponse;
 import uz.myrafeeq.api.dto.response.NearestCityResponse;
 import uz.myrafeeq.api.entity.CityEntity;
-import uz.myrafeeq.api.enums.SupportedLocale;
 import uz.myrafeeq.api.exception.CityNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.repository.CityRepository;
@@ -24,11 +23,10 @@ public class CityService {
   private final CityMapper cityMapper;
 
   @Transactional(readOnly = true)
-  public CitySearchResponse searchCities(String query, SupportedLocale locale, int limit) {
+  public CitySearchResponse searchCities(String query, int limit) {
     List<CityEntity> cities = cityRepository.searchByName(query, Pageable.ofSize(limit));
 
-    List<CityResponse> responses =
-        cities.stream().map(city -> cityMapper.toCityResponse(city, locale)).toList();
+    List<CityResponse> responses = cities.stream().map(cityMapper::toCityResponse).toList();
 
     return CitySearchResponse.builder().cities(responses).build();
   }

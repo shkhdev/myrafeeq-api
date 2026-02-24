@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -91,10 +90,6 @@ public class UserPreferencesEntity {
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
   private String manualAdjustments;
-
-  @Version
-  @Column(nullable = false)
-  private Integer version;
 
   @CreatedDate
   @Column(nullable = false, updatable = false)

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uz.myrafeeq.api.dto.response.CitySearchResponse;
 import uz.myrafeeq.api.dto.response.NearestCityResponse;
-import uz.myrafeeq.api.enums.SupportedLocale;
 import uz.myrafeeq.api.service.city.CityService;
 
 @Validated
@@ -29,19 +28,14 @@ public class CityController {
   private final CityService cityService;
 
   @GetMapping("/search")
-  @Operation(
-      summary = "Search cities",
-      description = "Searches cities by name with optional locale-based sorting.")
+  @Operation(summary = "Search cities", description = "Searches cities by name.")
   public ResponseEntity<CitySearchResponse> searchCities(
       @Parameter(description = "Search query", example = "Tashkent") @RequestParam String q,
-      @Parameter(description = "Locale for name resolution (EN, AR, UZ, RU)", example = "EN")
-          @RequestParam(required = false, defaultValue = "EN")
-          SupportedLocale locale,
       @Parameter(description = "Maximum results (1-50)", example = "10")
           @RequestParam(required = false, defaultValue = "10")
           @Min(1) @Max(50) int limit) {
 
-    return ResponseEntity.ok(cityService.searchCities(q, locale, limit));
+    return ResponseEntity.ok(cityService.searchCities(q, limit));
   }
 
   @GetMapping("/nearest")

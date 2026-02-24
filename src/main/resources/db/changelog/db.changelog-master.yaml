@@ -13,3 +13,7 @@ databaseChangeLog:
       file: db/changelog/changes/006-remove-unsupported-calculation-methods.sql
   - include:
       file: db/changelog/changes/007-add-uzbekistan-method.sql
+  - include:
+      file: db/changelog/changes/008-create-countries-table-and-simplify-cities.sql
+  - include:
+      file: db/changelog/changes/009-drop-version-columns.sql

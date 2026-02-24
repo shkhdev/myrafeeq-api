@@ -23,6 +23,7 @@ import uz.myrafeeq.api.dto.response.OnboardingResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
 import uz.myrafeeq.api.dto.response.UserResponse;
 import uz.myrafeeq.api.entity.CityEntity;
+import uz.myrafeeq.api.entity.CountryEntity;
 import uz.myrafeeq.api.entity.UserEntity;
 import uz.myrafeeq.api.entity.UserPreferencesEntity;
 import uz.myrafeeq.api.enums.CalculationMethod;
@@ -221,17 +222,20 @@ class UserPreferencesServiceTest {
   }
 
   private CityEntity buildCityEntity() {
+    CountryEntity country =
+        CountryEntity.builder()
+            .code("UZ")
+            .name("Uzbekistan")
+            .defaultMethod(CalculationMethod.MBOUZ)
+            .defaultMadhab(Madhab.HANAFI)
+            .build();
     return CityEntity.builder()
         .id(CITY_ID)
-        .nameEn("Tashkent")
-        .nameAr("\u0637\u0634\u0642\u0646\u062f")
-        .nameUz("Toshkent")
-        .nameRu("\u0422\u0430\u0448\u043a\u0435\u043d\u0442")
-        .countryCode("UZ")
+        .name("Tashkent")
+        .country(country)
         .latitude(41.2995)
         .longitude(69.2401)
         .timezone("Asia/Tashkent")
-        .recommendedMethod(CalculationMethod.MWL)
         .build();
   }
 
@@ -242,6 +246,9 @@ class UserPreferencesServiceTest {
         .country("UZ")
         .latitude(41.2995)
         .longitude(69.2401)
+        .timezone("Asia/Tashkent")
+        .defaultMethod("MBOUZ")
+        .defaultMadhab("HANAFI")
         .build();
   }
 

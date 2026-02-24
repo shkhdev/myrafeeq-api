@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,10 +40,6 @@ public class UserEntity {
   @Builder.Default
   @Column(nullable = false)
   private Boolean onboardingCompleted = false;
-
-  @Version
-  @Column(nullable = false)
-  private Integer version;
 
   @CreatedDate
   @Column(nullable = false, updatable = false)

@@ -44,15 +44,13 @@ class HijriDateCalculatorTest {
 
   @Test
   void correctionApplied() {
-    // With -1 correction, 7 Ramadan becomes 6 Ramadan (Uzbekistan local sighting)
+    // With -1 correction, 7 Ramadan becomes 6 Ramadan
     String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), -1);
     assertThat(result).isEqualTo("6 Ramadan 1447");
   }
 
   @Test
   void hijriYearIsReasonable() {
-    // For dates 2024-2030, verify the year increases monotonically
-    // and falls within the correct Hijri range (1446-1452)
     int previousYear = 0;
     for (int year = 2024; year <= 2030; year++) {
       String result = HijriDateCalculator.toHijriDate(LocalDate.of(year, 6, 15), 0);

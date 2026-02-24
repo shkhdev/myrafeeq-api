@@ -62,7 +62,8 @@ Public requests -> CityController (city search, nearest city)
 - **JWT authentication:** Telegram init data HMAC verified, then JWT issued. Bearer token required for authenticated
   endpoints.
 - **Prayer time calculations:** Uses [Adhan](https://github.com/batoulapps/adhan-kotlin) library (v1.x Java) for prayer
-  time computation. Supports 9 calculation methods (MWL, ISNA, EGYPT, KARACHI, UMM_AL_QURA, DUBAI, QATAR, KUWAIT, SINGAPORE).
+  time computation. Supports 9 calculation methods (MWL, ISNA, EGYPT, KARACHI, UMM_AL_QURA, DUBAI, QATAR, KUWAIT,
+  SINGAPORE).
 - **Hijri calendar:** Uses JDK's `java.time.chrono.HijrahDate` (Umm Al-Qura calendar).
 - **Partial updates:** `UpdatePreferencesRequest` uses nullable fields -- only non-null values are applied.
 - **JSONB fields:** `prayer_notifications` and `manual_adjustments` stored as JSONB, serialized/deserialized via Jackson

@@ -84,7 +84,7 @@ public class TelegramAuthService {
 
     String dataCheckString =
         params.entrySet().stream()
-            .filter(e -> !"hash".equals(e.getKey()))
+            .filter(e -> !"hash".equals(e.getKey()) && !"signature".equals(e.getKey()))
             .sorted(Map.Entry.comparingByKey())
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("\n"));

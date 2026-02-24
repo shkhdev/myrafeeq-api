@@ -1,7 +1,6 @@
 package uz.myrafeeq.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -93,17 +92,6 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             ErrorResponse.of("INVALID_PARAMETER", "Invalid value for parameter: " + ex.getName()));
-  }
-
-  @ExceptionHandler(OptimisticLockingFailureException.class)
-  public ResponseEntity<ErrorResponse> handleOptimisticLocking(
-      OptimisticLockingFailureException ex) {
-    log.warn("Concurrent modification detected: {}", ex.getMessage());
-
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(
-            ErrorResponse.of(
-                "CONCURRENT_MODIFICATION", "Concurrent modification detected, please retry"));
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

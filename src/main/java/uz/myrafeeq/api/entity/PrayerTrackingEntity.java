@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -27,7 +28,12 @@ import uz.myrafeeq.api.enums.PrayerName;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "prayer_tracking")
+@Table(
+    name = "prayer_tracking",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_tracking_user_date_prayer",
+            columnNames = {"telegram_id", "date", "prayer_name"}))
 @EntityListeners(AuditingEntityListener.class)
 public class PrayerTrackingEntity {
 

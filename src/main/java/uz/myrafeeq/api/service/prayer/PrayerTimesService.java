@@ -167,7 +167,7 @@ public class PrayerTimesService {
           city != null ? city.getTimezone() : "UTC",
           mapper.jsonToIntegerMap(prefs.getManualAdjustments()),
           prefs.getHijriCorrection() != null ? prefs.getHijriCorrection() : 0,
-          city != null ? city.getNameEn() : "Unknown");
+          city != null ? city.getName() : "Unknown");
     }
   }
 }

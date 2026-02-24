@@ -12,11 +12,8 @@ public interface CityRepository extends JpaRepository<CityEntity, String> {
   @Query(
       """
       SELECT c FROM CityEntity c
-      WHERE LOWER(c.nameEn) LIKE LOWER(CONCAT('%', :query, '%'))
-         OR LOWER(c.nameAr) LIKE LOWER(CONCAT('%', :query, '%'))
-         OR LOWER(c.nameUz) LIKE LOWER(CONCAT('%', :query, '%'))
-         OR LOWER(c.nameRu) LIKE LOWER(CONCAT('%', :query, '%'))
-      ORDER BY c.population DESC NULLS LAST
+      WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%'))
+      ORDER BY c.name
       """)
   List<CityEntity> searchByName(@Param("query") String query, Pageable pageable);
 

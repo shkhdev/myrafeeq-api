@@ -19,7 +19,7 @@ import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.CitySearchResponse;
 import uz.myrafeeq.api.dto.response.NearestCityResponse;
 import uz.myrafeeq.api.entity.CityEntity;
-import uz.myrafeeq.api.enums.SupportedLocale;
+import uz.myrafeeq.api.entity.CountryEntity;
 import uz.myrafeeq.api.exception.CityNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.repository.CityRepository;
@@ -33,20 +33,20 @@ class CityServiceTest {
 
   @InjectMocks private CityService cityService;
 
+  private static CountryEntity buildCountry() {
+    return CountryEntity.builder().code("UZ").name("Uzbekistan").build();
+  }
+
   @Test
   void searchCitiesReturnsMappedResults() {
     CityEntity tashkent =
         CityEntity.builder()
             .id("tashkent")
-            .nameEn("Tashkent")
-            .nameAr("\u0637\u0634\u0642\u0646\u062F")
-            .nameUz("Toshkent")
-            .nameRu("\u0422\u0430\u0448\u043A\u0435\u043D\u0442")
-            .countryCode("UZ")
+            .name("Tashkent")
+            .country(buildCountry())
             .latitude(41.2995)
             .longitude(69.2401)
             .timezone("Asia/Tashkent")
-            .population(2400000)
             .build();
 
     CityResponse expectedResponse =
@@ -60,15 +60,15 @@ class CityServiceTest {
 
     when(cityRepository.searchByName(eq("tash"), any(Pageable.class)))
         .thenReturn(List.of(tashkent));
-    when(cityMapper.toCityResponse(tashkent, SupportedLocale.EN)).thenReturn(expectedResponse);
+    when(cityMapper.toCityResponse(tashkent)).thenReturn(expectedResponse);
 
-    CitySearchResponse result = cityService.searchCities("tash", SupportedLocale.EN, 10);
+    CitySearchResponse result = cityService.searchCities("tash", 10);
 
     assertThat(result.cities()).hasSize(1);
     assertThat(result.cities().getFirst().id()).isEqualTo("tashkent");
     assertThat(result.cities().getFirst().name()).isEqualTo("Tashkent");
     verify(cityRepository).searchByName(eq("tash"), any(Pageable.class));
-    verify(cityMapper).toCityResponse(tashkent, SupportedLocale.EN);
+    verify(cityMapper).toCityResponse(tashkent);
   }
 
   @Test
@@ -76,7 +76,7 @@ class CityServiceTest {
     when(cityRepository.searchByName(eq("xyz"), any(Pageable.class)))
         .thenReturn(Collections.emptyList());
 
-    CitySearchResponse result = cityService.searchCities("xyz", SupportedLocale.EN, 10);
+    CitySearchResponse result = cityService.searchCities("xyz", 10);
 
     assertThat(result.cities()).isEmpty();
   }
@@ -86,15 +86,11 @@ class CityServiceTest {
     CityEntity city =
         CityEntity.builder()
             .id("tashkent")
-            .nameEn("Tashkent")
-            .nameAr("\u0637\u0634\u0642\u0646\u062F")
-            .nameUz("Toshkent")
-            .nameRu("\u0422\u0430\u0448\u043A\u0435\u043D\u0442")
-            .countryCode("UZ")
+            .name("Tashkent")
+            .country(buildCountry())
             .latitude(41.2995)
             .longitude(69.2401)
             .timezone("Asia/Tashkent")
-            .population(2400000)
             .build();
 
     CityResponse cityResponse =
@@ -131,15 +127,11 @@ class CityServiceTest {
     CityEntity city =
         CityEntity.builder()
             .id("samarkand")
-            .nameEn("Samarkand")
-            .nameAr("\u0633\u0645\u0631\u0642\u0646\u062F")
-            .nameUz("Samarqand")
-            .nameRu("\u0421\u0430\u043C\u0430\u0440\u043A\u0430\u043D\u0434")
-            .countryCode("UZ")
+            .name("Samarkand")
+            .country(buildCountry())
             .latitude(39.6542)
             .longitude(66.9597)
             .timezone("Asia/Samarkand")
-            .population(500000)
             .build();
 
     CityResponse cityResponse =

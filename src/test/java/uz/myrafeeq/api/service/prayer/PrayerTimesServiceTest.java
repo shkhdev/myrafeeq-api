@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uz.myrafeeq.api.dto.response.PrayerTimesResponse;
 import uz.myrafeeq.api.entity.CityEntity;
+import uz.myrafeeq.api.entity.CountryEntity;
 import uz.myrafeeq.api.entity.UserPreferencesEntity;
 import uz.myrafeeq.api.enums.CalculationMethod;
 import uz.myrafeeq.api.enums.HighLatitudeRule;
@@ -50,18 +51,20 @@ class PrayerTimesServiceTest {
   }
 
   private CityEntity buildCity() {
+    CountryEntity country =
+        CountryEntity.builder()
+            .code("UZ")
+            .name("Uzbekistan")
+            .defaultMethod(CalculationMethod.MBOUZ)
+            .defaultMadhab(Madhab.HANAFI)
+            .build();
     return CityEntity.builder()
         .id("tashkent")
-        .nameEn("Tashkent")
-        .nameAr("\u0637\u0634\u0642\u0646\u062F")
-        .nameUz("Toshkent")
-        .nameRu("\u0422\u0430\u0448\u043A\u0435\u043D\u0442")
-        .countryCode("UZ")
+        .name("Tashkent")
+        .country(country)
         .latitude(41.2995)
         .longitude(69.2401)
         .timezone("Asia/Tashkent")
-        .recommendedMethod(CalculationMethod.MWL)
-        .population(2400000)
         .build();
   }
 

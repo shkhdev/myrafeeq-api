@@ -3,7 +3,6 @@ package uz.myrafeeq.api.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uz.myrafeeq.api.dto.response.ErrorResponse;
@@ -76,19 +75,5 @@ class GlobalExceptionHandlerTest {
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().error().code()).isEqualTo("INTERNAL_ERROR");
     assertThat(response.getBody().error().message()).isEqualTo("An unexpected error occurred");
-  }
-
-  @Test
-  void handleOptimisticLocking() {
-    OptimisticLockingFailureException ex =
-        new OptimisticLockingFailureException("Row was updated by another transaction");
-
-    ResponseEntity<ErrorResponse> response = handler.handleOptimisticLocking(ex);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-    assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().error().code()).isEqualTo("CONCURRENT_MODIFICATION");
-    assertThat(response.getBody().error().message())
-        .isEqualTo("Concurrent modification detected, please retry");
   }
 }

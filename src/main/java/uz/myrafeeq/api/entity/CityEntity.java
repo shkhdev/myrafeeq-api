@@ -2,16 +2,16 @@ package uz.myrafeeq.api.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.myrafeeq.api.enums.CalculationMethod;
 
 @Entity
 @Getter
@@ -25,19 +25,11 @@ public class CityEntity {
   @Id private String id;
 
   @Column(nullable = false)
-  private String nameEn;
+  private String name;
 
-  @Column(nullable = false)
-  private String nameAr;
-
-  @Column(nullable = false)
-  private String nameUz;
-
-  @Column(nullable = false)
-  private String nameRu;
-
-  @Column(nullable = false, length = 3)
-  private String countryCode;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "country_code", nullable = false)
+  private CountryEntity country;
 
   @Column(nullable = false)
   private Double latitude;
@@ -47,10 +39,4 @@ public class CityEntity {
 
   @Column(nullable = false)
   private String timezone;
-
-  @Enumerated(EnumType.STRING)
-  @Column(length = 20)
-  private CalculationMethod recommendedMethod;
-
-  private Integer population;
 }

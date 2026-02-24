@@ -18,7 +18,7 @@ resource "digitalocean_droplet" "main" {
   ssh_keys = [
     data.digitalocean_ssh_key.main.id,
   ]
-  tags      = ["terraform", var.environment]
+  tags = ["terraform", var.environment]
 }
 
 resource "digitalocean_project_resources" "main" {

@@ -7,7 +7,10 @@ import lombok.Builder;
 @Schema(description = "City information")
 public record CityResponse(
     @Schema(description = "City ID", example = "tashkent") String id,
-    @Schema(description = "Localized city name", example = "Tashkent") String name,
+    @Schema(description = "City name", example = "Tashkent") String name,
     @Schema(description = "Country code", example = "UZ") String country,
     @Schema(description = "Latitude", example = "41.2995") Double latitude,
-    @Schema(description = "Longitude", example = "69.2401") Double longitude) {}
+    @Schema(description = "Longitude", example = "69.2401") Double longitude,
+    @Schema(description = "IANA timezone", example = "Asia/Tashkent") String timezone,
+    @Schema(description = "Default calculation method", example = "MBOUZ") String defaultMethod,
+    @Schema(description = "Default madhab", example = "HANAFI") String defaultMadhab) {}

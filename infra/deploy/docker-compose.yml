@@ -10,7 +10,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./postgresql/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql
       - ./postgresql/pg_hba.conf:/etc/postgresql/pg_hba.conf
-    command: ["postgres", "-c", "hba_file=/etc/postgresql/pg_hba.conf", "-c", "listen_addresses=*"]
+    command: [ "postgres", "-c", "hba_file=/etc/postgresql/pg_hba.conf", "-c", "listen_addresses=*" ]
     networks:
       - myrafeeq_network
     restart: unless-stopped
