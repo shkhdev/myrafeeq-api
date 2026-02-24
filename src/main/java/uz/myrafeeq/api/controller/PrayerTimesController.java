@@ -43,9 +43,7 @@ public class PrayerTimesController {
           LocalDate date,
       @Parameter(description = "Number of days (1-30, defaults to 1)", example = "1")
           @RequestParam(required = false, defaultValue = "1")
-          @Min(1)
-          @Max(30)
-          int days) {
+          @Min(1) @Max(30) int days) {
 
     return ResponseEntity.ok(
         prayerTimesService.calculatePrayerTimes(AuthenticatedUser.getTelegramId(), date, days));
@@ -61,14 +59,10 @@ public class PrayerTimesController {
   public ResponseEntity<PrayerTimesResponse> getPrayerTimesByLocation(
       @Parameter(description = "Latitude (-90 to 90)", example = "41.2995")
           @RequestParam
-          @DecimalMin("-90")
-          @DecimalMax("90")
-          double lat,
+          @DecimalMin("-90") @DecimalMax("90") double lat,
       @Parameter(description = "Longitude (-180 to 180)", example = "69.2401")
           @RequestParam
-          @DecimalMin("-180")
-          @DecimalMax("180")
-          double lon,
+          @DecimalMin("-180") @DecimalMax("180") double lon,
       @Parameter(description = "Date (defaults to today)", example = "2026-02-24")
           @RequestParam(required = false)
           LocalDate date,

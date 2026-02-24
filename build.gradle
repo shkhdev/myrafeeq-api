@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.java)
-    alias(libs.plugins.jacoco)
-    alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.lombok)
+	alias(libs.plugins.java)
+	alias(libs.plugins.jacoco)
+	alias(libs.plugins.spring.boot)
+	alias(libs.plugins.spotless)
+	alias(libs.plugins.lombok)
 }
 
 group = 'uz.myrafeeq'
@@ -11,72 +11,72 @@ version = '0.0.1'
 description = 'myrafeeq-api'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    // BOMs
-    implementation platform(libs.spring.boot.dependencies)
-    testImplementation enforcedPlatform(libs.testcontainers.bom)
+	// BOMs
+	implementation platform(libs.spring.boot.dependencies)
+	testImplementation enforcedPlatform(libs.testcontainers.bom)
 
-    // Spring Boot starters
-    implementation libs.spring.boot.starter.web
-    implementation libs.spring.boot.starter.validation
-    implementation libs.spring.boot.starter.security
-    implementation libs.spring.boot.starter.data.jpa
-    implementation libs.spring.boot.starter.liquibase
-    implementation libs.spring.boot.starter.actuator
-    runtimeOnly libs.postgresql
+	// Spring Boot starters
+	implementation libs.spring.boot.starter.web
+	implementation libs.spring.boot.starter.validation
+	implementation libs.spring.boot.starter.security
+	implementation libs.spring.boot.starter.data.jpa
+	implementation libs.spring.boot.starter.liquibase
+	implementation libs.spring.boot.starter.actuator
+	runtimeOnly libs.postgresql
 
-    // MapStruct
-    implementation libs.mapstruct
-    annotationProcessor libs.bundles.mapstruct.processors
+	// MapStruct
+	implementation libs.mapstruct
+	annotationProcessor libs.bundles.mapstruct.processors
 
-    // API Documentation
-    implementation libs.springdoc.openapi.webmvc.ui
+	// API Documentation
+	implementation libs.springdoc.openapi.webmvc.ui
 
-    // JWT
-    implementation libs.jjwt.api
-    runtimeOnly libs.bundles.jjwt.runtime
+	// JWT
+	implementation libs.jjwt.api
+	runtimeOnly libs.bundles.jjwt.runtime
 
-    // Testing
-    testImplementation libs.spring.boot.starter.test
-    testImplementation libs.spring.boot.starter.webmvc.test
-    testImplementation libs.spring.security.test
-    testImplementation libs.bundles.testcontainers
+	// Testing
+	testImplementation libs.spring.boot.starter.test
+	testImplementation libs.spring.boot.starter.webmvc.test
+	testImplementation libs.spring.security.test
+	testImplementation libs.bundles.testcontainers
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-    }
+	dependsOn test
+	reports {
+		xml.required = true
+	}
 }
 
 spotless {
-    format 'misc', {
-        target '*.gradle', '.gitattributes', '.gitignore'
-        trimTrailingWhitespace()
-        leadingSpacesToTabs()
-        endWithNewline()
-    }
-    java {
-        importOrder()
-        removeUnusedImports()
-        forbidWildcardImports()
-        forbidModuleImports()
-        googleJavaFormat()
-        formatAnnotations()
-    }
+	format 'misc', {
+		target '*.gradle', '.gitattributes', '.gitignore'
+		trimTrailingWhitespace()
+		leadingSpacesToTabs()
+		endWithNewline()
+	}
+	java {
+		importOrder()
+		removeUnusedImports()
+		forbidWildcardImports()
+		forbidModuleImports()
+		googleJavaFormat()
+		formatAnnotations()
+	}
 }

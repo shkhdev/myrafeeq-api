@@ -39,9 +39,7 @@ public class CityController {
           SupportedLocale locale,
       @Parameter(description = "Maximum results (1-50)", example = "10")
           @RequestParam(required = false, defaultValue = "10")
-          @Min(1)
-          @Max(50)
-          int limit) {
+          @Min(1) @Max(50) int limit) {
 
     return ResponseEntity.ok(cityService.searchCities(q, locale, limit));
   }
@@ -53,14 +51,10 @@ public class CityController {
   public ResponseEntity<NearestCityResponse> findNearestCity(
       @Parameter(description = "Latitude (-90 to 90)", example = "41.2995")
           @RequestParam
-          @DecimalMin("-90")
-          @DecimalMax("90")
-          double lat,
+          @DecimalMin("-90") @DecimalMax("90") double lat,
       @Parameter(description = "Longitude (-180 to 180)", example = "69.2401")
           @RequestParam
-          @DecimalMin("-180")
-          @DecimalMax("180")
-          double lon) {
+          @DecimalMin("-180") @DecimalMax("180") double lon) {
 
     return ResponseEntity.ok(cityService.findNearestCity(lat, lon));
   }
