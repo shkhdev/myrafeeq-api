@@ -36,34 +36,23 @@ class HijriDateCalculatorTest {
   }
 
   @Test
-  void knownApproximateDate() {
-    // Feb 24, 2026 produces "28 Jumada al-Thani 699" with the tabular calendar
-    // using the implementation's epoch offset.
-    // Verify the month is one of the nearby months (allowing +/- 1 month tolerance)
+  void knownDate() {
+    // Feb 24, 2026 is 7 Ramadan 1447 in the Umm Al-Qura calendar
     String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
-    assertThat(result)
-        .satisfiesAnyOf(
-            r -> assertThat(r).contains("Jumada al-Ula"),
-            r -> assertThat(r).contains("Jumada al-Thani"),
-            r -> assertThat(r).contains("Rajab"));
-    // The year from this implementation for Feb 2026 should be around 699
-    assertThat(result).containsPattern("69[89]|70[01]");
+    assertThat(result).isEqualTo("7 Ramadan 1447");
   }
 
   @Test
   void hijriYearIsReasonable() {
     // For dates 2024-2030, verify the year increases monotonically
-    // and falls within the range produced by the implementation's epoch offset
+    // and falls within the correct Hijri range (1446-1452)
     int previousYear = 0;
     for (int year = 2024; year <= 2030; year++) {
       String result = HijriDateCalculator.toHijriDate(LocalDate.of(year, 6, 15));
-      // Extract the year from the result (last token)
       String[] parts = result.split(" ");
       String yearStr = parts[parts.length - 1];
       int hijriYear = Integer.parseInt(yearStr);
-      // Years should be in the 690-710 range for the implementation's epoch offset
-      assertThat(hijriYear).isBetween(690, 710);
-      // Each successive Gregorian year should advance the Hijri year
+      assertThat(hijriYear).isBetween(1445, 1453);
       assertThat(hijriYear).isGreaterThanOrEqualTo(previousYear);
       previousYear = hijriYear;
     }
@@ -71,7 +60,6 @@ class HijriDateCalculatorTest {
 
   @Test
   void formattedCorrectly() {
-    // Output should match the pattern "day MonthName year" e.g. "28 Jumada al-Thani 699"
     String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
     assertThat(result).matches("\\d+ [A-Za-z' -]+ \\d+");
   }

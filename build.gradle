@@ -38,6 +38,9 @@ dependencies {
 	implementation libs.mapstruct
 	annotationProcessor libs.bundles.mapstruct.processors
 
+	// Prayer times
+	implementation libs.adhan
+
 	// API Documentation
 	implementation libs.springdoc.openapi.webmvc.ui
 

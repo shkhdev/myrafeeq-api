@@ -136,16 +136,6 @@ public class TelegramAuthService {
     }
   }
 
-  private byte[] hmacSha256(String key, String data) {
-    try {
-      Mac mac = Mac.getInstance(HMAC_SHA256);
-      mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), HMAC_SHA256));
-      return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-    } catch (Exception e) {
-      throw new InvalidAuthException("HMAC computation failed");
-    }
-  }
-
   private String bytesToHex(byte[] bytes) {
     StringBuilder sb = new StringBuilder(bytes.length * 2);
     for (byte b : bytes) {

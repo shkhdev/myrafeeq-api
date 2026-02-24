@@ -1,9 +1,15 @@
 package uz.myrafeeq.api.service.prayer;
 
+import com.batoulapps.adhan.CalculationParameters;
+import com.batoulapps.adhan.Coordinates;
+import com.batoulapps.adhan.PrayerTimes;
+import com.batoulapps.adhan.data.DateComponents;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +29,6 @@ import uz.myrafeeq.api.repository.UserPreferencesRepository;
 @Service
 @RequiredArgsConstructor
 public class PrayerTimesService {
-
-  private static final double SUNRISE_ANGLE = 0.833;
 
   private final UserPreferencesRepository preferencesRepository;
   private final CityRepository cityRepository;
@@ -75,8 +79,12 @@ public class PrayerTimesService {
   }
 
   private PrayerTimesResponse computePrayerTimes(LocalDate date, PrayerCalculationParams params) {
-    CalculationMethodConfig config = CalculationMethodConfig.forMethod(params.method());
-    double jd = SolarCalculator.julianDate(date);
+    Coordinates coordinates = new Coordinates(params.latitude(), params.longitude());
+    DateComponents dateComponents =
+        new DateComponents(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+    CalculationParameters calcParams = toAdhanParams(params);
+
+    PrayerTimes prayerTimes = new PrayerTimes(coordinates, dateComponents, calcParams);
 
     ZoneId zoneId;
     try {
@@ -85,122 +93,51 @@ public class PrayerTimesService {
       zoneId = ZoneOffset.UTC;
     }
 
-    int offsetSeconds =
-        zoneId
-            .getRules()
-            .getOffset(date.atStartOfDay().toInstant(ZoneOffset.UTC))
-            .getTotalSeconds();
-    double utcOffsetHours = offsetSeconds / 3600.0;
-
-    double fajrUtc =
-        SolarCalculator.timeForAngle(
-            jd, params.latitude(), params.longitude(), config.fajrAngle(), false);
-    double sunriseUtc =
-        SolarCalculator.timeForAngle(
-            jd, params.latitude(), params.longitude(), SUNRISE_ANGLE, false);
-    double dhuhrUtc = SolarCalculator.solarNoon(jd, params.longitude());
-    int shadowRatio = params.madhab() == Madhab.HANAFI ? 2 : 1;
-    double asrUtc = SolarCalculator.asrTime(jd, params.latitude(), params.longitude(), shadowRatio);
-    double maghribUtc =
-        SolarCalculator.timeForAngle(
-            jd, params.latitude(), params.longitude(), SUNRISE_ANGLE, true);
-
-    double ishaUtc;
-    if (config.isIshaFixedOffset()) {
-      ishaUtc = maghribUtc + config.ishaOffsetMinutes() / 60.0;
-    } else {
-      ishaUtc =
-          SolarCalculator.timeForAngle(
-              jd, params.latitude(), params.longitude(), config.ishaAngle(), true);
-    }
-
-    if (Double.isNaN(fajrUtc) || Double.isNaN(ishaUtc)) {
-      double nightDuration = computeNightDuration(sunriseUtc, maghribUtc);
-      if (Double.isNaN(fajrUtc)) {
-        fajrUtc =
-            applyHighLatitudeRule(
-                params.highLatitudeRule(), sunriseUtc, nightDuration, config.fajrAngle(), false);
-      }
-      if (Double.isNaN(ishaUtc)) {
-        ishaUtc =
-            applyHighLatitudeRule(
-                params.highLatitudeRule(), maghribUtc, nightDuration, config.ishaAngle(), true);
-      }
-    }
-
-    Map<String, Integer> adjustments = params.adjustments();
-    String fajr = formatTime(fajrUtc, utcOffsetHours, getAdjustment(adjustments, "FAJR"));
-    String sunrise = formatTime(sunriseUtc, utcOffsetHours, 0);
-    String dhuhr = formatTime(dhuhrUtc, utcOffsetHours, getAdjustment(adjustments, "DHUHR"));
-    String asr = formatTime(asrUtc, utcOffsetHours, getAdjustment(adjustments, "ASR"));
-    String maghrib = formatTime(maghribUtc, utcOffsetHours, getAdjustment(adjustments, "MAGHRIB"));
-    String isha = formatTime(ishaUtc, utcOffsetHours, getAdjustment(adjustments, "ISHA"));
-
     return PrayerTimesResponse.builder()
         .date(date.toString())
         .hijriDate(HijriDateCalculator.toHijriDate(date))
         .city(params.cityName())
         .times(
             PrayerTimesResponse.PrayerTimesDto.builder()
-                .fajr(fajr)
-                .sunrise(sunrise)
-                .dhuhr(dhuhr)
-                .asr(asr)
-                .maghrib(maghrib)
-                .isha(isha)
+                .fajr(formatTime(prayerTimes.fajr, zoneId))
+                .sunrise(formatTime(prayerTimes.sunrise, zoneId))
+                .dhuhr(formatTime(prayerTimes.dhuhr, zoneId))
+                .asr(formatTime(prayerTimes.asr, zoneId))
+                .maghrib(formatTime(prayerTimes.maghrib, zoneId))
+                .isha(formatTime(prayerTimes.isha, zoneId))
                 .build())
         .meta(
             PrayerTimesResponse.PrayerTimesMeta.builder()
                 .calculationMethod(params.method().name())
                 .madhab(params.madhab().name())
-                .adjustments(adjustments.isEmpty() ? null : adjustments)
+                .adjustments(params.adjustments().isEmpty() ? null : params.adjustments())
                 .build())
         .build();
   }
 
-  private double computeNightDuration(double sunriseUtc, double maghribUtc) {
-    if (Double.isNaN(sunriseUtc) || Double.isNaN(maghribUtc)) {
-      return 12.0;
+  private CalculationParameters toAdhanParams(PrayerCalculationParams params) {
+    CalculationParameters calcParams = params.method().getParameters();
+    calcParams.madhab = params.madhab().toAdhan();
+    calcParams.highLatitudeRule = params.highLatitudeRule().toAdhan();
+
+    Map<String, Integer> adj = params.adjustments();
+    if (!adj.isEmpty()) {
+      calcParams.adjustments.fajr = adj.getOrDefault("FAJR", 0);
+      calcParams.adjustments.dhuhr = adj.getOrDefault("DHUHR", 0);
+      calcParams.adjustments.asr = adj.getOrDefault("ASR", 0);
+      calcParams.adjustments.maghrib = adj.getOrDefault("MAGHRIB", 0);
+      calcParams.adjustments.isha = adj.getOrDefault("ISHA", 0);
     }
-    return 24.0 - (maghribUtc - sunriseUtc);
+
+    return calcParams;
   }
 
-  private double applyHighLatitudeRule(
-      HighLatitudeRule rule,
-      double baseTime,
-      double nightDuration,
-      double angle,
-      boolean afterNoon) {
-    double portion =
-        switch (rule) {
-          case MIDDLE_OF_NIGHT -> 0.5;
-          case ONE_SEVENTH -> 1.0 / 7.0;
-          case ANGLE_BASED -> angle / 60.0;
-        };
-
-    double adjustmentHours = portion * nightDuration;
-    return afterNoon ? baseTime + adjustmentHours : baseTime - adjustmentHours;
-  }
-
-  private int getAdjustment(Map<String, Integer> adjustments, String prayer) {
-    Integer adj = adjustments.get(prayer);
-    return adj != null ? adj : 0;
-  }
-
-  private String formatTime(double utcHours, double utcOffsetHours, int adjustmentMinutes) {
-    if (Double.isNaN(utcHours)) {
+  private String formatTime(Date time, ZoneId zoneId) {
+    if (time == null) {
       return "--:--";
     }
-    double localHours = utcHours + utcOffsetHours + adjustmentMinutes / 60.0;
-    localHours = ((localHours % 24.0) + 24.0) % 24.0;
-    int hours = (int) localHours;
-    int minutes = (int) Math.round((localHours - hours) * 60.0);
-    if (minutes == 60) {
-      hours += 1;
-      minutes = 0;
-    }
-    hours = hours % 24;
-    return String.format("%02d:%02d", hours, minutes);
+    ZonedDateTime zdt = time.toInstant().atZone(zoneId);
+    return String.format("%02d:%02d", zdt.getHour(), zdt.getMinute());
   }
 
   record PrayerCalculationParams(
