@@ -1,12 +1,12 @@
 package uz.myrafeeq.api.service.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.request.OnboardingRequest;
 import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
@@ -180,7 +180,7 @@ public class UserPreferencesService {
     }
     try {
       return objectMapper.writeValueAsString(map);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.warn("Failed to serialize map to JSON: {}", e.getMessage());
       return null;
     }

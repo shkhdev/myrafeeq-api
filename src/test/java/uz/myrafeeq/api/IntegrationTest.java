@@ -4,13 +4,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -107,14 +104,5 @@ class IntegrationTest {
         .perform(get("/api/prayer-times/by-location").param("lat", "100").param("lon", "69"))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error.code").value("INTERNAL_ERROR"));
-  }
-
-  @TestConfiguration
-  static class JacksonTestConfig {
-
-    @Bean
-    ObjectMapper objectMapper() {
-      return new ObjectMapper();
-    }
   }
 }

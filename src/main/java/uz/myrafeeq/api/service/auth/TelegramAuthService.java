@@ -1,8 +1,5 @@
 package uz.myrafeeq.api.service.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -16,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.configuration.TelegramProperties;
 import uz.myrafeeq.api.dto.request.TelegramAuthRequest;
 import uz.myrafeeq.api.dto.response.AuthResponse;
@@ -160,7 +160,7 @@ public class TelegramAuthService {
     }
     try {
       return objectMapper.readTree(userJson);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new InvalidAuthException("Failed to parse user JSON");
     }
   }
