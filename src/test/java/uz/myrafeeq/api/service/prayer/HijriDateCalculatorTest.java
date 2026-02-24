@@ -25,21 +25,28 @@ class HijriDateCalculatorTest {
 
   @Test
   void returnsNonNullNonEmpty() {
-    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
+    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), 0);
     assertThat(result).isNotNull().isNotEmpty();
   }
 
   @Test
   void containsValidMonthName() {
-    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
+    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), 0);
     assertThat(HIJRI_MONTH_NAMES).anyMatch(result::contains);
   }
 
   @Test
   void knownDate() {
     // Feb 24, 2026 is 7 Ramadan 1447 in the Umm Al-Qura calendar
-    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
+    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), 0);
     assertThat(result).isEqualTo("7 Ramadan 1447");
+  }
+
+  @Test
+  void correctionApplied() {
+    // With -1 correction, 7 Ramadan becomes 6 Ramadan (Uzbekistan local sighting)
+    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), -1);
+    assertThat(result).isEqualTo("6 Ramadan 1447");
   }
 
   @Test
@@ -48,7 +55,7 @@ class HijriDateCalculatorTest {
     // and falls within the correct Hijri range (1446-1452)
     int previousYear = 0;
     for (int year = 2024; year <= 2030; year++) {
-      String result = HijriDateCalculator.toHijriDate(LocalDate.of(year, 6, 15));
+      String result = HijriDateCalculator.toHijriDate(LocalDate.of(year, 6, 15), 0);
       String[] parts = result.split(" ");
       String yearStr = parts[parts.length - 1];
       int hijriYear = Integer.parseInt(yearStr);
@@ -60,7 +67,7 @@ class HijriDateCalculatorTest {
 
   @Test
   void formattedCorrectly() {
-    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24));
+    String result = HijriDateCalculator.toHijriDate(LocalDate.of(2026, 2, 24), 0);
     assertThat(result).matches("\\d+ [A-Za-z' -]+ \\d+");
   }
 }

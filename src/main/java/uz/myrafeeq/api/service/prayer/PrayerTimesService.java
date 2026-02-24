@@ -60,7 +60,7 @@ public class PrayerTimesService {
   }
 
   public PrayerTimesResponse calculatePrayerTimesByLocation(
-      double lat, double lon, LocalDate date, CalculationMethod method) {
+      double lat, double lon, LocalDate date, CalculationMethod method, String timezone) {
     LocalDate targetDate = date != null ? date : LocalDate.now();
     CalculationMethod calcMethod = method != null ? method : CalculationMethod.MWL;
 
@@ -71,8 +71,9 @@ public class PrayerTimesService {
             calcMethod,
             Madhab.STANDARD,
             HighLatitudeRule.MIDDLE_OF_NIGHT,
-            "UTC",
+            timezone != null ? timezone : "UTC",
             Map.of(),
+            0,
             "");
 
     return computePrayerTimes(targetDate, params);
@@ -95,7 +96,7 @@ public class PrayerTimesService {
 
     return PrayerTimesResponse.builder()
         .date(date.toString())
-        .hijriDate(HijriDateCalculator.toHijriDate(date))
+        .hijriDate(HijriDateCalculator.toHijriDate(date, params.hijriCorrection()))
         .city(params.cityName())
         .times(
             PrayerTimesResponse.PrayerTimesDto.builder()
@@ -148,6 +149,7 @@ public class PrayerTimesService {
       HighLatitudeRule highLatitudeRule,
       String timezone,
       Map<String, Integer> adjustments,
+      int hijriCorrection,
       String cityName) {
 
     static PrayerCalculationParams fromPreferences(
@@ -164,6 +166,7 @@ public class PrayerTimesService {
               : HighLatitudeRule.MIDDLE_OF_NIGHT,
           city != null ? city.getTimezone() : "UTC",
           mapper.jsonToIntegerMap(prefs.getManualAdjustments()),
+          prefs.getHijriCorrection() != null ? prefs.getHijriCorrection() : 0,
           city != null ? city.getNameEn() : "Unknown");
     }
   }

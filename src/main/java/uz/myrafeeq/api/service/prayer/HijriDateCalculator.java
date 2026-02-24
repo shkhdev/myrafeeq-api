@@ -24,8 +24,9 @@ public final class HijriDateCalculator {
 
   private HijriDateCalculator() {}
 
-  public static String toHijriDate(LocalDate gregorianDate) {
-    HijrahDate hijrahDate = HijrahDate.from(gregorianDate);
+  public static String toHijriDate(LocalDate gregorianDate, int correctionDays) {
+    HijrahDate hijrahDate =
+        HijrahDate.from(gregorianDate).plus(correctionDays, java.time.temporal.ChronoUnit.DAYS);
     int day = hijrahDate.get(ChronoField.DAY_OF_MONTH);
     int month = hijrahDate.get(ChronoField.MONTH_OF_YEAR);
     int year = hijrahDate.get(ChronoField.YEAR_OF_ERA);

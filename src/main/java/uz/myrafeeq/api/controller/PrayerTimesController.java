@@ -68,9 +68,12 @@ public class PrayerTimesController {
           LocalDate date,
       @Parameter(description = "Calculation method (defaults to MWL)", example = "MWL")
           @RequestParam(required = false)
-          CalculationMethod method) {
+          CalculationMethod method,
+      @Parameter(description = "IANA timezone (defaults to UTC)", example = "Asia/Tashkent")
+          @RequestParam(required = false)
+          String timezone) {
 
     return ResponseEntity.ok(
-        prayerTimesService.calculatePrayerTimesByLocation(lat, lon, date, method));
+        prayerTimesService.calculatePrayerTimesByLocation(lat, lon, date, method, timezone));
   }
 }

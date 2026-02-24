@@ -116,7 +116,7 @@ class PrayerTimesServiceTest {
     LocalDate date = LocalDate.of(2026, 6, 15);
 
     PrayerTimesResponse result =
-        prayerTimesService.calculatePrayerTimesByLocation(41.2995, 69.2401, date, null);
+        prayerTimesService.calculatePrayerTimesByLocation(41.2995, 69.2401, date, null, null);
 
     assertThat(result).isNotNull();
     assertThat(result.meta().calculationMethod()).isEqualTo("MWL");
@@ -130,7 +130,7 @@ class PrayerTimesServiceTest {
 
     PrayerTimesResponse result =
         prayerTimesService.calculatePrayerTimesByLocation(
-            41.2995, 69.2401, date, CalculationMethod.MWL);
+            41.2995, 69.2401, date, CalculationMethod.MWL, null);
 
     assertThat(result.times()).isNotNull();
     assertThat(result.times().fajr()).matches("\\d{2}:\\d{2}");
