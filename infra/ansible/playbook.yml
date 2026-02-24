@@ -5,6 +5,8 @@
 
   vars:
     app_dir: /opt/myrafeeq
+    ngrok_authtoken: "{{ lookup('env', 'NGROK_AUTHTOKEN') }}"
+    ngrok_domain: "{{ lookup('env', 'NGROK_DOMAIN') }}"
 
   tasks:
     - name: Install packages
@@ -16,6 +18,47 @@
         state: present
         update_cache: true
 
+    - name: Add ngrok GPG key
+      ansible.builtin.apt_key:
+        url: https://ngrok-agent.s3.amazonaws.com/ngrok.asc
+        state: present
+
+    - name: Add ngrok repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://ngrok-agent.s3.amazonaws.com buster main"
+        state: present
+
+    - name: Install ngrok
+      ansible.builtin.apt:
+        name: ngrok
+        state: present
+        update_cache: true
+
+    - name: Set ngrok authtoken
+      ansible.builtin.command:
+        cmd: ngrok config add-authtoken {{ ngrok_authtoken }}
+      changed_when: true
+      when: ngrok_authtoken | length > 0
+
+    - name: Create ngrok systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ngrok.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=ngrok tunnel
+          After=network.target
+
+          [Service]
+          Environment=HOME=/root
+          ExecStart=/usr/local/bin/ngrok http --url={{ ngrok_domain }} 80
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+      register: ngrok_service
+
     - name: Start services
       ansible.builtin.systemd:
         name: "{{ item }}"
@@ -24,6 +67,14 @@
       loop:
         - docker
         - nginx
+        - ngrok
+
+    - name: Restart ngrok if config changed
+      ansible.builtin.systemd:
+        name: ngrok
+        state: restarted
+        daemon_reload: true
+      when: ngrok_service.changed
 
     - name: Create app directory
       ansible.builtin.file:
