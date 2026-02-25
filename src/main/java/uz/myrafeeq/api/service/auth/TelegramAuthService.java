@@ -41,7 +41,10 @@ public class TelegramAuthService {
 
   @Transactional
   public AuthResponse authenticate(TelegramAuthRequest request) {
+    log.debug("Authenticating initData (length={})", request.initData().length());
+
     Map<String, String> params = parseInitData(request.initData());
+    log.debug("Parsed initData keys: {}", params.keySet());
 
     verifyHmac(params);
     verifyAuthDate(params);
@@ -79,12 +82,13 @@ public class TelegramAuthService {
   private void verifyHmac(Map<String, String> params) {
     String receivedHash = params.get("hash");
     if (receivedHash == null || receivedHash.isBlank()) {
+      log.warn("Missing hash in init data. Available keys: {}", params.keySet());
       throw new InvalidAuthException("Missing hash in init data");
     }
 
     String dataCheckString =
         params.entrySet().stream()
-            .filter(e -> !"hash".equals(e.getKey()) && !"signature".equals(e.getKey()))
+            .filter(e -> !"hash".equals(e.getKey()))
             .sorted(Map.Entry.comparingByKey())
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("\n"));
@@ -98,11 +102,17 @@ public class TelegramAuthService {
       if (!MessageDigest.isEqual(
           computedHash.getBytes(StandardCharsets.UTF_8),
           receivedHash.getBytes(StandardCharsets.UTF_8))) {
+        log.warn(
+            "HMAC mismatch: computed={}, received={}, dataCheckString keys={}",
+            computedHash.substring(0, 8) + "...",
+            receivedHash.substring(0, Math.min(8, receivedHash.length())) + "...",
+            params.keySet().stream().filter(k -> !"hash".equals(k)).sorted().toList());
         throw new InvalidAuthException("Invalid HMAC signature");
       }
     } catch (InvalidAuthException e) {
       throw e;
     } catch (Exception e) {
+      log.error("Failed to verify HMAC signature", e);
       throw new InvalidAuthException("Failed to verify HMAC signature");
     }
   }
@@ -116,12 +126,20 @@ public class TelegramAuthService {
     try {
       long authDateEpoch = Long.parseLong(authDateStr);
       Instant authDate = Instant.ofEpochSecond(authDateEpoch);
-      Instant cutoff = Instant.now().minus(telegramProperties.authDataTtl());
+      Instant now = Instant.now();
+      Instant cutoff = now.minus(telegramProperties.authDataTtl());
 
       if (authDate.isBefore(cutoff)) {
+        log.warn(
+            "Init data expired: authDate={}, now={}, ttl={}, age={}s",
+            authDate,
+            now,
+            telegramProperties.authDataTtl(),
+            now.getEpochSecond() - authDate.getEpochSecond());
         throw new InvalidAuthException("Init data has expired");
       }
     } catch (NumberFormatException e) {
+      log.warn("Invalid auth_date format: '{}'", authDateStr);
       throw new InvalidAuthException("Invalid auth_date format");
     }
   }
