@@ -56,7 +56,3 @@ myrafeeq:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
     auth-data-ttl: PT5M
-  rate-limit:
-    enabled: true
-    requests-per-minute: 60
-    auth-requests-per-minute: 10
