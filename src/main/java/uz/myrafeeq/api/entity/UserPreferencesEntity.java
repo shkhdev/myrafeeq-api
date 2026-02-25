@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -34,6 +36,7 @@ import uz.myrafeeq.api.enums.TimeFormat;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
 @Table(name = "user_preferences")
 @EntityListeners(AuditingEntityListener.class)
 public class UserPreferencesEntity {
@@ -98,6 +101,10 @@ public class UserPreferencesEntity {
   @LastModifiedDate
   @Column(nullable = false)
   private Instant updatedAt;
+
+  @Version
+  @Column(nullable = false)
+  private Integer version;
 
   @Override
   public boolean equals(Object o) {

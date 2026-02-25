@@ -1,6 +1,8 @@
 package uz.myrafeeq.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -130,6 +132,26 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of("RESOURCE_NOT_FOUND", "Requested resource not found"));
+  }
+
+  @ExceptionHandler(OptimisticLockingFailureException.class)
+  public ResponseEntity<ErrorResponse> handleOptimisticLockingFailure(
+      OptimisticLockingFailureException ex) {
+    log.warn("Optimistic locking conflict: {}", ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            ErrorResponse.of(
+                "CONFLICT", "The resource was modified by another request. Please retry."));
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+      DataIntegrityViolationException ex) {
+    log.warn("Data integrity violation: {}", ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ErrorResponse.of("DATA_CONFLICT", "Operation conflicts with existing data"));
   }
 
   @ExceptionHandler(Exception.class)

@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import uz.myrafeeq.api.enums.PrayerName;
@@ -28,6 +30,7 @@ import uz.myrafeeq.api.enums.PrayerName;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
 @Table(
     name = "prayer_tracking",
     uniqueConstraints =
@@ -61,6 +64,10 @@ public class PrayerTrackingEntity {
   @CreatedDate
   @Column(nullable = false, updatable = false)
   private Instant createdAt;
+
+  @Version
+  @Column(nullable = false)
+  private Integer version;
 
   @Override
   public boolean equals(Object o) {
