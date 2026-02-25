@@ -37,4 +37,16 @@ public class CountryEntity {
   @Enumerated(EnumType.STRING)
   @Column(length = 20)
   private Madhab defaultMadhab;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof CountryEntity that)) return false;
+    return code != null && code.equals(that.code);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }

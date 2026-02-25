@@ -3,14 +3,14 @@ package uz.myrafeeq.api.mapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 import uz.myrafeeq.api.dto.response.PrayerTrackingResponse;
 import uz.myrafeeq.api.entity.PrayerTrackingEntity;
 
-@Mapper(componentModel = "spring")
-public interface PrayerTrackingMapper {
+@Component
+public class PrayerTrackingMapper {
 
-  default PrayerTrackingResponse toTrackingResponse(List<PrayerTrackingEntity> entities) {
+  public PrayerTrackingResponse toTrackingResponse(List<PrayerTrackingEntity> entities) {
     Map<String, Map<String, Boolean>> tracking = new LinkedHashMap<>();
 
     for (PrayerTrackingEntity entity : entities) {

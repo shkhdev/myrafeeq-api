@@ -129,7 +129,7 @@ class PrayerTrackingServiceTest {
 
     TogglePrayerResponse result = prayerTrackingService.togglePrayer(TELEGRAM_ID, request);
 
-    assertThat(result.date()).isEqualTo(today.toString());
+    assertThat(result.date()).isEqualTo(today);
     assertThat(result.prayer()).isEqualTo("FAJR");
     assertThat(result.prayed()).isTrue();
     assertThat(result.toggledAt()).isNotNull();

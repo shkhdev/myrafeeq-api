@@ -4,41 +4,36 @@ import java.util.Map;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
 import uz.myrafeeq.api.entity.UserPreferencesEntity;
+import uz.myrafeeq.api.enums.TimeFormat;
 
 @Mapper(componentModel = "spring")
-public interface PreferencesMapper {
+public abstract class PreferencesMapper {
 
-  ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  @Autowired private ObjectMapper objectMapper;
 
   @Mapping(target = "city", source = "city")
   @Mapping(
       target = "calculationMethod",
-      expression =
-          "java(entity.getCalculationMethod() != null ? entity.getCalculationMethod().name() : null)")
-  @Mapping(
-      target = "madhab",
-      expression = "java(entity.getMadhab() != null ? entity.getMadhab().name() : null)")
+      source = "entity.calculationMethod",
+      qualifiedByName = "enumName")
+  @Mapping(target = "madhab", source = "entity.madhab", qualifiedByName = "enumName")
   @Mapping(
       target = "highLatitudeRule",
-      expression =
-          "java(entity.getHighLatitudeRule() != null ? entity.getHighLatitudeRule().name() : null)")
-  @Mapping(
-      target = "timeFormat",
-      expression =
-          "java(entity.getTimeFormat() != null ? entity.getTimeFormat().getValue() : null)")
-  @Mapping(
-      target = "theme",
-      expression = "java(entity.getTheme() != null ? entity.getTheme().name() : null)")
+      source = "entity.highLatitudeRule",
+      qualifiedByName = "enumName")
+  @Mapping(target = "timeFormat", source = "entity.timeFormat", qualifiedByName = "timeFormatValue")
+  @Mapping(target = "theme", source = "entity.theme", qualifiedByName = "enumName")
   @Mapping(
       target = "reminderTiming",
-      expression =
-          "java(entity.getReminderTiming() != null ? entity.getReminderTiming().name() : null)")
+      source = "entity.reminderTiming",
+      qualifiedByName = "enumName")
   @Mapping(
       target = "prayerNotifications",
       source = "entity.prayerNotifications",
@@ -47,27 +42,38 @@ public interface PreferencesMapper {
       target = "manualAdjustments",
       source = "entity.manualAdjustments",
       qualifiedByName = "jsonToIntegerMap")
-  UserPreferencesResponse toPreferencesResponse(UserPreferencesEntity entity, CityResponse city);
+  public abstract UserPreferencesResponse toPreferencesResponse(
+      UserPreferencesEntity entity, CityResponse city);
+
+  @Named("enumName")
+  String enumName(Enum<?> value) {
+    return value != null ? value.name() : null;
+  }
+
+  @Named("timeFormatValue")
+  String timeFormatValue(TimeFormat value) {
+    return value != null ? value.getValue() : null;
+  }
 
   @Named("jsonToBooleanMap")
-  default Map<String, Boolean> jsonToBooleanMap(String json) {
+  Map<String, Boolean> jsonToBooleanMap(String json) {
     if (json == null || json.isBlank()) {
       return Map.of();
     }
     try {
-      return OBJECT_MAPPER.readValue(json, new TypeReference<>() {});
+      return objectMapper.readValue(json, new TypeReference<>() {});
     } catch (JacksonException e) {
       return Map.of();
     }
   }
 
   @Named("jsonToIntegerMap")
-  default Map<String, Integer> jsonToIntegerMap(String json) {
+  public Map<String, Integer> jsonToIntegerMap(String json) {
     if (json == null || json.isBlank()) {
       return Map.of();
     }
     try {
-      return OBJECT_MAPPER.readValue(json, new TypeReference<>() {});
+      return objectMapper.readValue(json, new TypeReference<>() {});
     } catch (JacksonException e) {
       return Map.of();
     }

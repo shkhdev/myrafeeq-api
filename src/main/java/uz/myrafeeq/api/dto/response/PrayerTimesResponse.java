@@ -1,13 +1,14 @@
 package uz.myrafeeq.api.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.util.Map;
 import lombok.Builder;
 
 @Builder
 @Schema(description = "Prayer times for a specific date")
 public record PrayerTimesResponse(
-    @Schema(description = "Gregorian date", example = "2026-02-24") String date,
+    @Schema(description = "Gregorian date", example = "2026-02-24") LocalDate date,
     @Schema(description = "Hijri date", example = "6 Sha'ban 1447") String hijriDate,
     @Schema(description = "City name", example = "Tashkent") String city,
     @Schema(description = "Prayer times") PrayerTimesDto times,

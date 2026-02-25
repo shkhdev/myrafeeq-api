@@ -82,9 +82,9 @@ class PrayerTimesServiceTest {
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, date, 3);
 
     assertThat(result).hasSize(3);
-    assertThat(result.get(0).date()).isEqualTo("2026-02-24");
-    assertThat(result.get(1).date()).isEqualTo("2026-02-25");
-    assertThat(result.get(2).date()).isEqualTo("2026-02-26");
+    assertThat(result.get(0).date()).isEqualTo(LocalDate.of(2026, 2, 24));
+    assertThat(result.get(1).date()).isEqualTo(LocalDate.of(2026, 2, 25));
+    assertThat(result.get(2).date()).isEqualTo(LocalDate.of(2026, 2, 26));
   }
 
   @Test
@@ -100,7 +100,7 @@ class PrayerTimesServiceTest {
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, null, 1);
 
     assertThat(result).hasSize(1);
-    assertThat(result.getFirst().date()).isEqualTo(LocalDate.now().toString());
+    assertThat(result.getFirst().date()).isEqualTo(LocalDate.now());
   }
 
   @Test
@@ -124,7 +124,7 @@ class PrayerTimesServiceTest {
     assertThat(result).isNotNull();
     assertThat(result.meta().calculationMethod()).isEqualTo("MWL");
     assertThat(result.meta().madhab()).isEqualTo("SHAFI");
-    assertThat(result.date()).isEqualTo("2026-06-15");
+    assertThat(result.date()).isEqualTo(LocalDate.of(2026, 6, 15));
   }
 
   @Test

@@ -18,6 +18,16 @@ import uz.myrafeeq.api.security.JwtAuthFilter;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+  public static final String[] PUBLIC_PATHS = {
+    "/api/auth/**",
+    "/api/prayer-times/by-location",
+    "/api/cities/**",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/actuator/health",
+    "/actuator/info"
+  };
+
   private final JwtAuthFilter jwtAuthFilter;
 
   @Bean
@@ -27,18 +37,7 @@ public class SecurityConfiguration {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(
-                        "/api/auth/**",
-                        "/api/prayer-times/by-location",
-                        "/api/cities/**",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/actuator/health",
-                        "/actuator/info")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+            auth -> auth.requestMatchers(PUBLIC_PATHS).permitAll().anyRequest().authenticated())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }

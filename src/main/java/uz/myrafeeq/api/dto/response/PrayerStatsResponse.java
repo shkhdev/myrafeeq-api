@@ -1,6 +1,7 @@
 package uz.myrafeeq.api.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.util.Map;
 import lombok.Builder;
 
@@ -8,8 +9,8 @@ import lombok.Builder;
 @Schema(description = "Prayer completion statistics")
 public record PrayerStatsResponse(
     @Schema(description = "Statistics period", example = "week") String period,
-    @Schema(description = "Period start date", example = "2026-02-17") String from,
-    @Schema(description = "Period end date", example = "2026-02-24") String to,
+    @Schema(description = "Period start date", example = "2026-02-17") LocalDate from,
+    @Schema(description = "Period end date", example = "2026-02-24") LocalDate to,
     @Schema(description = "Total prayer slots", example = "35") Integer total,
     @Schema(description = "Completed prayers", example = "28") Integer completed,
     @Schema(description = "Completion percentage", example = "80") Integer percentage,

@@ -2,7 +2,6 @@ package uz.myrafeeq.api.service.user;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -32,7 +31,6 @@ import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserPreferencesService {
@@ -183,8 +181,7 @@ public class UserPreferencesService {
     try {
       return objectMapper.writeValueAsString(map);
     } catch (JacksonException e) {
-      log.warn("Failed to serialize map to JSON: {}", e.getMessage());
-      return null;
+      throw new IllegalStateException("Failed to serialize preferences to JSON", e);
     }
   }
 }

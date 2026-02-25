@@ -16,7 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.configuration.RateLimitProperties;
+import uz.myrafeeq.api.dto.response.ErrorResponse;
 
 @Slf4j
 @Component
@@ -25,6 +27,7 @@ import uz.myrafeeq.api.configuration.RateLimitProperties;
 public class RateLimitFilter extends OncePerRequestFilter {
 
   private final RateLimitProperties properties;
+  private final ObjectMapper objectMapper;
   private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
 
   @Override
@@ -49,10 +52,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
       log.warn("Rate limit exceeded for client: {}", clientKey);
       response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response
-          .getWriter()
-          .write(
-              "{\"error\":{\"code\":\"RATE_LIMITED\",\"message\":\"Too many requests, please slow down\"}}");
+      objectMapper.writeValue(
+          response.getWriter(),
+          ErrorResponse.of("RATE_LIMITED", "Too many requests, please slow down"));
       return;
     }
 

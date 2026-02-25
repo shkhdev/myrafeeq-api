@@ -100,7 +100,7 @@ public class PrayerTimesService {
     }
 
     return PrayerTimesResponse.builder()
-        .date(date.toString())
+        .date(date)
         .hijriDate(HijriDateCalculator.toHijriDate(date, params.hijriCorrection()))
         .city(params.cityName())
         .times(

@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import uz.myrafeeq.api.configuration.SecurityConfiguration;
 
 @Slf4j
 @Component
@@ -22,13 +22,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
-  private static final Set<String> PUBLIC_PATHS =
-      Set.of(
-          "/api/auth/**",
-          "/api/prayer-times/by-location",
-          "/api/cities/**",
-          "/swagger-ui/**",
-          "/v3/api-docs/**");
 
   private final JwtTokenProvider jwtTokenProvider;
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -59,6 +52,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getServletPath();
-    return PUBLIC_PATHS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
+    for (String pattern : SecurityConfiguration.PUBLIC_PATHS) {
+      if (pathMatcher.match(pattern, path)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

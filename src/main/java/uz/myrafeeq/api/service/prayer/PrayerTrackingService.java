@@ -83,7 +83,7 @@ public class PrayerTrackingService {
     entity = trackingRepository.save(entity);
 
     return TogglePrayerResponse.builder()
-        .date(entity.getDate().toString())
+        .date(entity.getDate())
         .prayer(entity.getPrayerName().name())
         .prayed(entity.getPrayed())
         .toggledAt(entity.getToggledAt())
@@ -93,12 +93,16 @@ public class PrayerTrackingService {
   @Transactional(readOnly = true)
   public PrayerStatsResponse getStats(Long telegramId, StatsPeriod period) {
     LocalDate today = LocalDate.now();
-    LocalDate from = today.minusDays(period.getDays());
+    LocalDate lookbackStart = today.minusDays(MAX_STREAK_LOOKBACK);
 
-    List<PrayerTrackingEntity> entities =
-        trackingRepository.findByTelegramIdAndDateBetween(telegramId, from, today);
+    List<PrayerTrackingEntity> allEntries =
+        trackingRepository.findByTelegramIdAndDateBetween(telegramId, lookbackStart, today);
 
-    long totalDays = from.until(today).getDays() + 1;
+    LocalDate statsFrom = today.minusDays(period.getDays());
+    List<PrayerTrackingEntity> statsEntries =
+        allEntries.stream().filter(e -> !e.getDate().isBefore(statsFrom)).toList();
+
+    long totalDays = statsFrom.until(today).getDays() + 1;
     int totalPrayers = (int) (totalDays * PrayerName.values().length);
 
     int completedPrayers = 0;
@@ -108,7 +112,7 @@ public class PrayerTrackingService {
       int prayerTotal = (int) totalDays;
       int prayerCompleted =
           (int)
-              entities.stream()
+              statsEntries.stream()
                   .filter(e -> e.getPrayerName() == prayer && Boolean.TRUE.equals(e.getPrayed()))
                   .count();
       completedPrayers += prayerCompleted;
@@ -122,12 +126,12 @@ public class PrayerTrackingService {
 
     int percentage = totalPrayers > 0 ? (completedPrayers * 100) / totalPrayers : 0;
 
-    int streak = calculateStreak(telegramId, today);
+    int streak = calculateStreak(allEntries, today);
 
     return PrayerStatsResponse.builder()
         .period(period.name())
-        .from(from.toString())
-        .to(today.toString())
+        .from(statsFrom)
+        .to(today)
         .total(totalPrayers)
         .completed(completedPrayers)
         .percentage(percentage)
@@ -136,11 +140,7 @@ public class PrayerTrackingService {
         .build();
   }
 
-  private int calculateStreak(Long telegramId, LocalDate today) {
-    LocalDate lookbackStart = today.minusDays(MAX_STREAK_LOOKBACK);
-    List<PrayerTrackingEntity> allEntries =
-        trackingRepository.findByTelegramIdAndDateBetween(telegramId, lookbackStart, today);
-
+  private int calculateStreak(List<PrayerTrackingEntity> allEntries, LocalDate today) {
     Map<LocalDate, Long> completedByDate =
         allEntries.stream()
             .filter(e -> Boolean.TRUE.equals(e.getPrayed()))
