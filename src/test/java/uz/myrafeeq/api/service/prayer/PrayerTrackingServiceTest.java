@@ -28,7 +28,9 @@ import uz.myrafeeq.api.enums.PrayerName;
 import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
+import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
+import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.projection.DateCountProjection;
 import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 
@@ -39,6 +41,8 @@ class PrayerTrackingServiceTest {
 
   @Mock private PrayerTrackingRepository trackingRepository;
   @Mock private PrayerTrackingMapper trackingMapper;
+  @Mock private UserPreferencesRepository preferencesRepository;
+  @Mock private CityRepository cityRepository;
   @InjectMocks private PrayerTrackingService trackingService;
 
   @Test
@@ -52,7 +56,7 @@ class PrayerTrackingServiceTest {
 
     PrayerTrackingResponse result = trackingService.getTracking(TELEGRAM_ID, today, null, null);
 
-    assertThat(result.tracking()).isEmpty();
+    assertThat(result.getTracking()).isEmpty();
   }
 
   @Test
@@ -106,9 +110,9 @@ class PrayerTrackingServiceTest {
 
     TogglePrayerResponse result = trackingService.togglePrayer(TELEGRAM_ID, request);
 
-    assertThat(result.prayer()).isEqualTo("FAJR");
-    assertThat(result.prayed()).isTrue();
-    assertThat(result.date()).isEqualTo(today);
+    assertThat(result.getPrayer()).isEqualTo("FAJR");
+    assertThat(result.getPrayed()).isTrue();
+    assertThat(result.getDate()).isEqualTo(today);
   }
 
   @Test
@@ -135,7 +139,7 @@ class PrayerTrackingServiceTest {
 
     TogglePrayerResponse result = trackingService.togglePrayer(TELEGRAM_ID, request);
 
-    assertThat(result.prayed()).isFalse();
+    assertThat(result.getPrayed()).isFalse();
   }
 
   @Test
@@ -181,7 +185,7 @@ class PrayerTrackingServiceTest {
 
     TogglePrayerResponse result = trackingService.togglePrayer(TELEGRAM_ID, request);
 
-    assertThat(result.date()).isEqualTo(sevenDaysAgo);
+    assertThat(result.getDate()).isEqualTo(sevenDaysAgo);
   }
 
   @Test
@@ -207,8 +211,8 @@ class PrayerTrackingServiceTest {
 
     TogglePrayerResponse result = trackingService.togglePrayer(TELEGRAM_ID, request);
 
-    assertThat(result.date()).isEqualTo(today);
-    assertThat(result.prayer()).isEqualTo("MAGHRIB");
+    assertThat(result.getDate()).isEqualTo(today);
+    assertThat(result.getPrayer()).isEqualTo("MAGHRIB");
   }
 
   @ParameterizedTest
@@ -225,12 +229,12 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, period);
 
-    assertThat(result.period()).isEqualTo(period.name());
-    assertThat(result.total()).isPositive();
-    assertThat(result.completed()).isZero();
-    assertThat(result.percentage()).isZero();
-    assertThat(result.streak()).isZero();
-    assertThat(result.byPrayer()).hasSize(PrayerName.values().length);
+    assertThat(result.getPeriod()).isEqualTo(period.name());
+    assertThat(result.getTotal()).isPositive();
+    assertThat(result.getCompleted()).isZero();
+    assertThat(result.getPercentage()).isZero();
+    assertThat(result.getStreak()).isZero();
+    assertThat(result.getByPrayer()).hasSize(PrayerName.values().length);
   }
 
   @Test
@@ -252,7 +256,7 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
-    assertThat(result.streak()).isEqualTo(3);
+    assertThat(result.getStreak()).isEqualTo(3);
   }
 
   @Test
@@ -274,7 +278,7 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
-    assertThat(result.streak()).isEqualTo(2);
+    assertThat(result.getStreak()).isEqualTo(2);
   }
 
   @Test
@@ -298,8 +302,8 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
-    assertThat(result.completed()).isEqualTo(5);
-    assertThat(result.percentage()).isPositive();
+    assertThat(result.getCompleted()).isEqualTo(5);
+    assertThat(result.getPercentage()).isPositive();
   }
 
   @Test
@@ -315,7 +319,7 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
-    assertThat(result.streak()).isZero();
+    assertThat(result.getStreak()).isZero();
   }
 
   @Test
@@ -331,7 +335,7 @@ class PrayerTrackingServiceTest {
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
-    assertThat(result.byPrayer()).containsKeys("FAJR", "DHUHR", "ASR", "MAGHRIB", "ISHA");
+    assertThat(result.getByPrayer()).containsKeys("FAJR", "DHUHR", "ASR", "MAGHRIB", "ISHA");
   }
 
   private PrayerCountProjection prayerCount(PrayerName prayer, Long count) {

@@ -50,14 +50,14 @@ class PrayerTimesServiceTest {
 
     assertThat(result).hasSize(1);
     PrayerTimesResponse response = result.getFirst();
-    assertThat(response.date()).isEqualTo(LocalDate.of(2025, 3, 10));
-    assertThat(response.times().fajr()).matches("\\d{2}:\\d{2}");
-    assertThat(response.times().dhuhr()).matches("\\d{2}:\\d{2}");
-    assertThat(response.times().asr()).matches("\\d{2}:\\d{2}");
-    assertThat(response.times().maghrib()).matches("\\d{2}:\\d{2}");
-    assertThat(response.times().isha()).matches("\\d{2}:\\d{2}");
-    assertThat(response.meta().calculationMethod()).isEqualTo("MBOUZ");
-    assertThat(response.meta().madhab()).isEqualTo("HANAFI");
+    assertThat(response.getDate()).isEqualTo(LocalDate.of(2025, 3, 10));
+    assertThat(response.getTimes().getFajr()).matches("\\d{2}:\\d{2}");
+    assertThat(response.getTimes().getDhuhr()).matches("\\d{2}:\\d{2}");
+    assertThat(response.getTimes().getAsr()).matches("\\d{2}:\\d{2}");
+    assertThat(response.getTimes().getMaghrib()).matches("\\d{2}:\\d{2}");
+    assertThat(response.getTimes().getIsha()).matches("\\d{2}:\\d{2}");
+    assertThat(response.getMeta().getCalculationMethod()).isEqualTo("MBOUZ");
+    assertThat(response.getMeta().getMadhab()).isEqualTo("HANAFI");
   }
 
   @Test
@@ -72,9 +72,9 @@ class PrayerTimesServiceTest {
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 3);
 
     assertThat(result).hasSize(3);
-    assertThat(result.get(0).date()).isEqualTo(LocalDate.of(2025, 3, 10));
-    assertThat(result.get(1).date()).isEqualTo(LocalDate.of(2025, 3, 11));
-    assertThat(result.get(2).date()).isEqualTo(LocalDate.of(2025, 3, 12));
+    assertThat(result.get(0).getDate()).isEqualTo(LocalDate.of(2025, 3, 10));
+    assertThat(result.get(1).getDate()).isEqualTo(LocalDate.of(2025, 3, 11));
+    assertThat(result.get(2).getDate()).isEqualTo(LocalDate.of(2025, 3, 12));
   }
 
   @Test
@@ -98,10 +98,10 @@ class PrayerTimesServiceTest {
             "Asia/Tashkent",
             Madhab.HANAFI);
 
-    assertThat(result.date()).isEqualTo(LocalDate.of(2025, 6, 15));
-    assertThat(result.times().fajr()).matches("\\d{2}:\\d{2}");
-    assertThat(result.meta().calculationMethod()).isEqualTo("MWL");
-    assertThat(result.meta().madhab()).isEqualTo("HANAFI");
+    assertThat(result.getDate()).isEqualTo(LocalDate.of(2025, 6, 15));
+    assertThat(result.getTimes().getFajr()).matches("\\d{2}:\\d{2}");
+    assertThat(result.getMeta().getCalculationMethod()).isEqualTo("MWL");
+    assertThat(result.getMeta().getMadhab()).isEqualTo("HANAFI");
   }
 
   @Test
@@ -110,9 +110,9 @@ class PrayerTimesServiceTest {
         prayerTimesService.calculatePrayerTimesByLocation(
             TASHKENT_LAT, TASHKENT_LON, null, null, null, null);
 
-    assertThat(result.date()).isEqualTo(LocalDate.now());
-    assertThat(result.meta().calculationMethod()).isEqualTo("MWL");
-    assertThat(result.meta().madhab()).isEqualTo("SHAFI");
+    assertThat(result.getDate()).isEqualTo(LocalDate.now());
+    assertThat(result.getMeta().getCalculationMethod()).isEqualTo("MWL");
+    assertThat(result.getMeta().getMadhab()).isEqualTo("SHAFI");
   }
 
   @ParameterizedTest
@@ -127,11 +127,11 @@ class PrayerTimesServiceTest {
             "Asia/Tashkent",
             Madhab.HANAFI);
 
-    assertThat(result.times().fajr()).isNotEqualTo("--:--");
-    assertThat(result.times().dhuhr()).isNotEqualTo("--:--");
-    assertThat(result.times().asr()).isNotEqualTo("--:--");
-    assertThat(result.times().maghrib()).isNotEqualTo("--:--");
-    assertThat(result.times().isha()).isNotEqualTo("--:--");
+    assertThat(result.getTimes().getFajr()).isNotEqualTo("--:--");
+    assertThat(result.getTimes().getDhuhr()).isNotEqualTo("--:--");
+    assertThat(result.getTimes().getAsr()).isNotEqualTo("--:--");
+    assertThat(result.getTimes().getMaghrib()).isNotEqualTo("--:--");
+    assertThat(result.getTimes().getIsha()).isNotEqualTo("--:--");
   }
 
   @Test
@@ -145,8 +145,8 @@ class PrayerTimesServiceTest {
             "Asia/Tashkent",
             Madhab.SHAFI);
 
-    assertThat(result.hijriDate()).isNotBlank();
-    assertThat(result.hijriDate()).matches("\\d+ .+ \\d+");
+    assertThat(result.getHijriDate()).isNotBlank();
+    assertThat(result.getHijriDate()).matches("\\d+ .+ \\d+");
   }
 
   @Test
@@ -161,7 +161,7 @@ class PrayerTimesServiceTest {
             Madhab.SHAFI);
 
     assertThat(result).isNotNull();
-    assertThat(result.times().fajr()).matches("\\d{2}:\\d{2}");
+    assertThat(result.getTimes().getFajr()).matches("\\d{2}:\\d{2}");
   }
 
   @Test
@@ -176,8 +176,8 @@ class PrayerTimesServiceTest {
     List<PrayerTimesResponse> result =
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 1);
 
-    assertThat(result.getFirst().meta().adjustments()).isNotNull();
-    assertThat(result.getFirst().meta().adjustments()).containsEntry("FAJR", 2);
+    assertThat(result.getFirst().getMeta().getAdjustments()).isNotNull();
+    assertThat(result.getFirst().getMeta().getAdjustments()).containsEntry("FAJR", 2);
   }
 
   @Test
@@ -191,7 +191,7 @@ class PrayerTimesServiceTest {
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 1);
 
     assertThat(result).hasSize(1);
-    assertThat(result.getFirst().city()).isEqualTo("Unknown");
+    assertThat(result.getFirst().getCity()).isEqualTo("Unknown");
   }
 
   private UserPreferencesEntity buildPreferences() {

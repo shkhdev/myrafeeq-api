@@ -52,8 +52,8 @@ class UserPreferencesServiceTest {
 
     UserPreferencesResponse result = preferencesService.getPreferences(TELEGRAM_ID);
 
-    assertThat(result.calculationMethod()).isEqualTo("MBOUZ");
-    assertThat(result.madhab()).isEqualTo("HANAFI");
+    assertThat(result.getCalculationMethod()).isEqualTo("MBOUZ");
+    assertThat(result.getMadhab()).isEqualTo("HANAFI");
   }
 
   @Test

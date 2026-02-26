@@ -32,7 +32,7 @@ public class AuthController {
       summary = "Validate Telegram init data",
       description =
           """
-          Validates Telegram Mini App init data, verifies HMAC signature, \
+          Validates Telegram Mini App init data, verifies HMAC signature,
           upserts user, and returns a JWT token.""")
   @ApiResponse(responseCode = "201", description = "Authentication successful")
   @ApiResponse(

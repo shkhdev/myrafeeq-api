@@ -68,8 +68,8 @@ class OnboardingServiceTest {
 
     OnboardingResponse result = onboardingService.completeOnboarding(TELEGRAM_ID, request);
 
-    assertThat(result.user()).isNotNull();
-    assertThat(result.preferences()).isNotNull();
+    assertThat(result.getUser()).isNotNull();
+    assertThat(result.getPreferences()).isNotNull();
   }
 
   @Test

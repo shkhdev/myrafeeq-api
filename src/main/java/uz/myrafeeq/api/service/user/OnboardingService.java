@@ -1,6 +1,7 @@
 package uz.myrafeeq.api.service.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.OnboardingRequest;
@@ -25,6 +26,7 @@ import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OnboardingService {
@@ -50,8 +52,8 @@ public class OnboardingService {
 
     CityEntity city =
         cityRepository
-            .findById(request.cityId())
-            .orElseThrow(() -> new CityNotFoundException("City not found: " + request.cityId()));
+            .findById(request.getCityId())
+            .orElseThrow(() -> new CityNotFoundException("City not found: " + request.getCityId()));
 
     CalculationMethod method =
         city.getCountry() != null && city.getCountry().getDefaultMethod() != null
@@ -62,25 +64,28 @@ public class OnboardingService {
         UserPreferencesEntity.builder()
             .telegramId(telegramId)
             .cityId(city.getId())
-            .latitude(request.latitude() != null ? request.latitude() : city.getLatitude())
-            .longitude(request.longitude() != null ? request.longitude() : city.getLongitude())
+            .latitude(request.getLatitude() != null ? request.getLatitude() : city.getLatitude())
+            .longitude(
+                request.getLongitude() != null ? request.getLongitude() : city.getLongitude())
             .calculationMethod(method)
             .madhab(Madhab.HANAFI)
             .highLatitudeRule(HighLatitudeRule.MIDDLE_OF_NIGHT)
             .timeFormat(TimeFormat.TWENTY_FOUR_HOUR)
             .theme(ThemePreference.SYSTEM)
-            .notificationsEnabled(request.notificationsEnabled())
+            .notificationsEnabled(request.getNotificationsEnabled())
             .reminderTiming(
-                request.reminderTiming() != null
-                    ? request.reminderTiming()
+                request.getReminderTiming() != null
+                    ? request.getReminderTiming()
                     : ReminderTiming.ON_TIME)
-            .prayerNotifications(request.prayerNotifications())
+            .prayerNotifications(request.getPrayerNotifications())
             .build();
 
     prefs = preferencesRepository.save(prefs);
 
     user.setOnboardingCompleted(true);
     user = userRepository.save(user);
+
+    log.info("Onboarding completed for user={}, city={}", telegramId, request.getCityId());
 
     CityResponse cityResponse = cityMapper.toCityResponse(city);
     return OnboardingResponse.builder()

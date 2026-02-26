@@ -41,9 +41,9 @@ public class TelegramAuthService {
 
   @Transactional
   public AuthResponse authenticate(TelegramAuthRequest request) {
-    log.debug("Authenticating initData (length={})", request.initData().length());
+    log.debug("Authenticating initData (length={})", request.getInitData().length());
 
-    Map<String, String> params = parseInitData(request.initData());
+    Map<String, String> params = parseInitData(request.getInitData());
     log.debug("Parsed initData keys: {}", params.keySet());
 
     verifyHmac(params);
@@ -51,11 +51,16 @@ public class TelegramAuthService {
 
     JsonNode userNode = parseUserJson(params.get("user"));
 
-    Long telegramId = userNode.get("id").asLong();
-    String firstName = userNode.has("first_name") ? userNode.get("first_name").asText() : "";
-    String username = userNode.has("username") ? userNode.get("username").asText() : null;
+    JsonNode idNode = userNode.get("id");
+    if (idNode == null || !idNode.isNumber()) {
+      throw new InvalidAuthException("Missing or invalid user ID in Telegram data");
+    }
+
+    Long telegramId = idNode.asLong();
+    String firstName = userNode.has("first_name") ? userNode.get("first_name").asString() : "";
+    String username = userNode.has("username") ? userNode.get("username").asString() : null;
     String languageCode =
-        userNode.has("language_code") ? userNode.get("language_code").asText() : "en";
+        userNode.has("language_code") ? userNode.get("language_code").asString() : "en";
 
     UserEntity user = upsertUser(telegramId, firstName, username, languageCode);
 
@@ -74,7 +79,7 @@ public class TelegramAuthService {
               Collectors.toMap(
                   parts -> URLDecoder.decode(parts[0], StandardCharsets.UTF_8),
                   parts -> URLDecoder.decode(parts[1], StandardCharsets.UTF_8)));
-    } catch (Exception e) {
+    } catch (Exception _) {
       throw new InvalidAuthException("Failed to parse init data");
     }
   }
@@ -95,7 +100,8 @@ public class TelegramAuthService {
 
     try {
       byte[] secretKey =
-          hmacSha256("WebAppData".getBytes(StandardCharsets.UTF_8), telegramProperties.botToken());
+          hmacSha256(
+              "WebAppData".getBytes(StandardCharsets.UTF_8), telegramProperties.getBotToken());
       byte[] hash = hmacSha256(secretKey, dataCheckString);
       String computedHash = bytesToHex(hash);
 
@@ -130,14 +136,14 @@ public class TelegramAuthService {
       long authDateEpoch = Long.parseLong(authDateStr);
       Instant authDate = Instant.ofEpochSecond(authDateEpoch);
       Instant now = Instant.now();
-      Instant cutoff = now.minus(telegramProperties.authDataTtl());
+      Instant cutoff = now.minus(telegramProperties.getAuthDataTtl());
 
       if (authDate.isBefore(cutoff)) {
         log.warn(
             "Init data expired: authDate={}, now={}, ttl={}, age={}s",
             authDate,
             now,
-            telegramProperties.authDataTtl(),
+            telegramProperties.getAuthDataTtl(),
             now.getEpochSecond() - authDate.getEpochSecond());
         throw new InvalidAuthException("Init data has expired");
       }

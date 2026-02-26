@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.response.PrayerTimesResponse;
@@ -25,6 +26,7 @@ import uz.myrafeeq.api.exception.PreferencesNotFoundException;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PrayerTimesService {
@@ -48,6 +50,12 @@ public class PrayerTimesService {
     PrayerCalculationParams params = PrayerCalculationParams.fromPreferences(prefs, city);
 
     LocalDate startDate = date != null ? date : LocalDate.now();
+    log.debug(
+        "Calculating prayer times: user={}, date={}, days={}, method={}",
+        telegramId,
+        startDate,
+        days,
+        params.method());
 
     List<PrayerTimesResponse> results = new ArrayList<>();
     for (int i = 0; i < days; i++) {
@@ -155,9 +163,14 @@ public class PrayerTimesService {
       String cityName) {
 
     static PrayerCalculationParams fromPreferences(UserPreferencesEntity prefs, CityEntity city) {
+      if (prefs.getLatitude() == null || prefs.getLongitude() == null) {
+        throw new PreferencesNotFoundException(
+            "Location not configured for user: " + prefs.getTelegramId());
+      }
+
       return new PrayerCalculationParams(
-          prefs.getLatitude() != null ? prefs.getLatitude() : 0.0,
-          prefs.getLongitude() != null ? prefs.getLongitude() : 0.0,
+          prefs.getLatitude(),
+          prefs.getLongitude(),
           prefs.getCalculationMethod() != null
               ? prefs.getCalculationMethod()
               : CalculationMethod.MWL,

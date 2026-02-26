@@ -40,8 +40,8 @@ class CityServiceTest {
 
     CitySearchResponse result = cityService.searchCities("Tashkent", 10);
 
-    assertThat(result.cities()).hasSize(1);
-    assertThat(result.cities().getFirst().name()).isEqualTo("Tashkent");
+    assertThat(result.getCities()).hasSize(1);
+    assertThat(result.getCities().getFirst().getName()).isEqualTo("Tashkent");
   }
 
   @Test
@@ -50,7 +50,7 @@ class CityServiceTest {
 
     CitySearchResponse result = cityService.searchCities("Unknown", 10);
 
-    assertThat(result.cities()).isEmpty();
+    assertThat(result.getCities()).isEmpty();
   }
 
   @Test
@@ -66,9 +66,9 @@ class CityServiceTest {
 
     CitySearchResponse result = cityService.searchCities("a", 10);
 
-    assertThat(result.cities()).hasSize(2);
-    assertThat(result.cities())
-        .extracting(CityResponse::name)
+    assertThat(result.getCities()).hasSize(2);
+    assertThat(result.getCities())
+        .extracting(CityResponse::getName)
         .containsExactly("Tashkent", "Samarkand");
   }
 
@@ -82,8 +82,8 @@ class CityServiceTest {
 
     NearestCityResponse result = cityService.findNearestCity(41.3, 69.3);
 
-    assertThat(result.city().name()).isEqualTo("Tashkent");
-    assertThat(result.distanceKm()).isGreaterThanOrEqualTo(0.0);
+    assertThat(result.getCity().getName()).isEqualTo("Tashkent");
+    assertThat(result.getDistanceKm()).isGreaterThanOrEqualTo(0.0);
   }
 
   @Test
@@ -105,7 +105,7 @@ class CityServiceTest {
 
     NearestCityResponse result = cityService.findNearestCity(41.2995, 69.2401);
 
-    assertThat(result.distanceKm()).isEqualTo(0.0);
+    assertThat(result.getDistanceKm()).isEqualTo(0.0);
   }
 
   @Test
@@ -119,7 +119,7 @@ class CityServiceTest {
 
     NearestCityResponse result = cityService.findNearestCity(41.4, 69.3);
 
-    assertThat(result.distanceKm()).isBetween(5.0, 20.0);
+    assertThat(result.getDistanceKm()).isBetween(5.0, 20.0);
   }
 
   private CityEntity buildCityEntity(String id, String name, double lat, double lon) {

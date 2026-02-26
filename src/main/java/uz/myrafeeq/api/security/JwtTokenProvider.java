@@ -20,8 +20,8 @@ public final class JwtTokenProvider {
   private final Duration tokenTtl;
 
   public JwtTokenProvider(JwtProperties jwtProperties) {
-    this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.secret()));
-    this.tokenTtl = jwtProperties.ttl();
+    this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.getSecret()));
+    this.tokenTtl = jwtProperties.getTtl();
   }
 
   public String generateToken(Long telegramId, String firstName) {

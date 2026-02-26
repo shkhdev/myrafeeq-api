@@ -7,11 +7,13 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import uz.myrafeeq.api.entity.PrayerTrackingEntity;
 import uz.myrafeeq.api.enums.PrayerName;
 import uz.myrafeeq.api.repository.projection.DateCountProjection;
 import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 
+@Repository
 public interface PrayerTrackingRepository extends JpaRepository<PrayerTrackingEntity, UUID> {
 
   List<PrayerTrackingEntity> findByTelegramIdAndPrayerDate(Long telegramId, LocalDate date);

@@ -2,6 +2,7 @@ package uz.myrafeeq.api.service.city;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import uz.myrafeeq.api.exception.CityNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CityService {

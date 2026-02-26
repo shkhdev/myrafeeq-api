@@ -2,11 +2,14 @@ package uz.myrafeeq.api.service.prayer;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.TogglePrayerRequest;
@@ -18,10 +21,13 @@ import uz.myrafeeq.api.enums.PrayerName;
 import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
+import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
+import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.projection.DateCountProjection;
 import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PrayerTrackingService {
@@ -31,6 +37,8 @@ public class PrayerTrackingService {
 
   private final PrayerTrackingRepository trackingRepository;
   private final PrayerTrackingMapper trackingMapper;
+  private final UserPreferencesRepository preferencesRepository;
+  private final CityRepository cityRepository;
 
   @Transactional(readOnly = true)
   public PrayerTrackingResponse getTracking(
@@ -42,7 +50,9 @@ public class PrayerTrackingService {
     } else if (from != null && to != null) {
       entities = trackingRepository.findByTelegramIdAndPrayerDateBetween(telegramId, from, to);
     } else {
-      entities = trackingRepository.findByTelegramIdAndPrayerDate(telegramId, LocalDate.now());
+      entities =
+          trackingRepository.findByTelegramIdAndPrayerDate(
+              telegramId, LocalDate.now(resolveUserTimezone(telegramId)));
     }
 
     return trackingMapper.toTrackingResponse(entities);
@@ -50,13 +60,13 @@ public class PrayerTrackingService {
 
   @Transactional
   public TogglePrayerResponse togglePrayer(Long telegramId, TogglePrayerRequest request) {
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(resolveUserTimezone(telegramId));
 
-    if (request.date().isAfter(today)) {
+    if (request.getDate().isAfter(today)) {
       throw new TrackingValidationException("Cannot track prayers for future dates");
     }
 
-    if (request.date().isBefore(today.minusDays(MAX_PAST_DAYS))) {
+    if (request.getDate().isBefore(today.minusDays(MAX_PAST_DAYS))) {
       throw new TrackingValidationException(
           "Cannot track prayers older than " + MAX_PAST_DAYS + " days");
     }
@@ -66,10 +76,10 @@ public class PrayerTrackingService {
     PrayerTrackingEntity entity =
         trackingRepository
             .findByTelegramIdAndPrayerDateAndPrayerName(
-                telegramId, request.date(), request.prayer())
+                telegramId, request.getDate(), request.getPrayer())
             .map(
                 existing -> {
-                  existing.setPrayed(request.prayed());
+                  existing.setPrayed(request.getPrayed());
                   existing.setToggledAt(now);
                   return existing;
                 })
@@ -77,13 +87,20 @@ public class PrayerTrackingService {
                 () ->
                     PrayerTrackingEntity.builder()
                         .telegramId(telegramId)
-                        .prayerDate(request.date())
-                        .prayerName(request.prayer())
-                        .prayed(request.prayed())
+                        .prayerDate(request.getDate())
+                        .prayerName(request.getPrayer())
+                        .prayed(request.getPrayed())
                         .toggledAt(now)
                         .build());
 
     entity = trackingRepository.save(entity);
+
+    log.info(
+        "Prayer toggled: user={}, date={}, prayer={}, prayed={}",
+        telegramId,
+        request.getDate(),
+        request.getPrayer(),
+        request.getPrayed());
 
     return TogglePrayerResponse.builder()
         .date(entity.getPrayerDate())
@@ -95,7 +112,7 @@ public class PrayerTrackingService {
 
   @Transactional(readOnly = true)
   public PrayerStatsResponse getStats(Long telegramId, StatsPeriod period) {
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(resolveUserTimezone(telegramId));
     LocalDate statsFrom = today.minusDays(period.getDays());
     LocalDate streakFrom = today.minusDays(MAX_STREAK_LOOKBACK);
 
@@ -165,5 +182,21 @@ public class PrayerTrackingService {
     }
 
     return streak;
+  }
+
+  private ZoneId resolveUserTimezone(Long telegramId) {
+    return preferencesRepository
+        .findById(telegramId)
+        .filter(prefs -> prefs.getCityId() != null)
+        .flatMap(prefs -> cityRepository.findById(prefs.getCityId()))
+        .map(
+            city -> {
+              try {
+                return ZoneId.of(city.getTimezone());
+              } catch (Exception _) {
+                return (ZoneId) ZoneOffset.UTC;
+              }
+            })
+        .orElse(ZoneOffset.UTC);
   }
 }

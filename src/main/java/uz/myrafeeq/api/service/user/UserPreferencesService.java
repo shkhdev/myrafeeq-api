@@ -1,6 +1,7 @@
 package uz.myrafeeq.api.service.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
@@ -14,6 +15,7 @@ import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserPreferencesService {
@@ -51,46 +53,48 @@ public class UserPreferencesService {
     applyPartialUpdate(prefs, request);
     prefs = preferencesRepository.save(prefs);
 
+    log.info("Preferences updated for user={}", telegramId);
+
     CityResponse city = resolveCity(prefs.getCityId());
     return preferencesMapper.toPreferencesResponse(prefs, city);
   }
 
   private void applyPartialUpdate(UserPreferencesEntity prefs, UpdatePreferencesRequest request) {
-    if (request.cityId() != null) {
+    if (request.getCityId() != null) {
       cityRepository
-          .findById(request.cityId())
-          .orElseThrow(() -> new CityNotFoundException("City not found: " + request.cityId()));
-      prefs.setCityId(request.cityId());
+          .findById(request.getCityId())
+          .orElseThrow(() -> new CityNotFoundException("City not found: " + request.getCityId()));
+      prefs.setCityId(request.getCityId());
     }
-    if (request.calculationMethod() != null) {
-      prefs.setCalculationMethod(request.calculationMethod());
+    if (request.getCalculationMethod() != null) {
+      prefs.setCalculationMethod(request.getCalculationMethod());
     }
-    if (request.madhab() != null) {
-      prefs.setMadhab(request.madhab());
+    if (request.getMadhab() != null) {
+      prefs.setMadhab(request.getMadhab());
     }
-    if (request.highLatitudeRule() != null) {
-      prefs.setHighLatitudeRule(request.highLatitudeRule());
+    if (request.getHighLatitudeRule() != null) {
+      prefs.setHighLatitudeRule(request.getHighLatitudeRule());
     }
-    if (request.hijriCorrection() != null) {
-      prefs.setHijriCorrection(request.hijriCorrection());
+    if (request.getHijriCorrection() != null) {
+      prefs.setHijriCorrection(request.getHijriCorrection());
     }
-    if (request.timeFormat() != null) {
-      prefs.setTimeFormat(request.timeFormat());
+    if (request.getTimeFormat() != null) {
+      prefs.setTimeFormat(request.getTimeFormat());
     }
-    if (request.theme() != null) {
-      prefs.setTheme(request.theme());
+    if (request.getTheme() != null) {
+      prefs.setTheme(request.getTheme());
     }
-    if (request.notificationsEnabled() != null) {
-      prefs.setNotificationsEnabled(request.notificationsEnabled());
+    if (request.getNotificationsEnabled() != null) {
+      prefs.setNotificationsEnabled(request.getNotificationsEnabled());
     }
-    if (request.reminderTiming() != null) {
-      prefs.setReminderTiming(request.reminderTiming());
+    if (request.getReminderTiming() != null) {
+      prefs.setReminderTiming(request.getReminderTiming());
     }
-    if (request.prayerNotifications() != null) {
-      prefs.setPrayerNotifications(request.prayerNotifications());
+    if (request.getPrayerNotifications() != null) {
+      prefs.setPrayerNotifications(request.getPrayerNotifications());
     }
-    if (request.manualAdjustments() != null) {
-      prefs.setManualAdjustments(request.manualAdjustments());
+    if (request.getManualAdjustments() != null) {
+      prefs.setManualAdjustments(request.getManualAdjustments());
     }
   }
 
