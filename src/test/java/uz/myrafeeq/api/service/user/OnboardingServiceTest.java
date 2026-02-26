@@ -12,8 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.request.OnboardingRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.OnboardingResponse;
@@ -47,11 +45,10 @@ class OnboardingServiceTest {
   @Mock private PreferencesMapper preferencesMapper;
   @Mock private CityMapper cityMapper;
   @Mock private UserMapper userMapper;
-  @Mock private ObjectMapper objectMapper;
   @InjectMocks private OnboardingService onboardingService;
 
   @Test
-  void should_completeOnboarding_when_validRequest() throws JacksonException {
+  void should_completeOnboarding_when_validRequest() {
     UserEntity user = buildUserEntity(false);
     CityEntity city = buildCityEntity();
     CityResponse cityResponse = buildCityResponse();
@@ -68,7 +65,6 @@ class OnboardingServiceTest {
     given(cityMapper.toCityResponse(city)).willReturn(cityResponse);
     given(userMapper.toUserResponse(any())).willReturn(userResponse);
     given(preferencesMapper.toPreferencesResponse(any(), any())).willReturn(prefsResponse);
-    given(objectMapper.writeValueAsString(any(Map.class))).willReturn("{}");
 
     OnboardingResponse result = onboardingService.completeOnboarding(TELEGRAM_ID, request);
 
@@ -110,7 +106,7 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void should_useCountryDefaults_when_onboardingWithCountryMethod() throws JacksonException {
+  void should_useCountryDefaults_when_onboardingWithCountryMethod() {
     UserEntity user = buildUserEntity(false);
     CityEntity city = buildCityEntity();
     CityResponse cityResponse = buildCityResponse();
@@ -138,7 +134,7 @@ class OnboardingServiceTest {
   }
 
   @Test
-  void should_useCityCoordinates_when_onboardingWithoutExplicitLocation() throws JacksonException {
+  void should_useCityCoordinates_when_onboardingWithoutExplicitLocation() {
     UserEntity user = buildUserEntity(false);
     CityEntity city = buildCityEntity();
     CityResponse cityResponse = buildCityResponse();

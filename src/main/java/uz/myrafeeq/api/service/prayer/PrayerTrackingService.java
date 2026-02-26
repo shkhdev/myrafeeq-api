@@ -19,6 +19,8 @@ import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
+import uz.myrafeeq.api.repository.projection.DateCountProjection;
+import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 
 @Service
 @RequiredArgsConstructor
@@ -97,11 +99,13 @@ public class PrayerTrackingService {
     LocalDate statsFrom = today.minusDays(period.getDays());
     LocalDate streakFrom = today.minusDays(MAX_STREAK_LOOKBACK);
 
-    List<Object[]> prayerCounts =
+    List<PrayerCountProjection> prayerCounts =
         trackingRepository.countCompletedByPrayer(telegramId, statsFrom, today);
     Map<PrayerName, Long> completedMap =
         prayerCounts.stream()
-            .collect(Collectors.toMap(row -> (PrayerName) row[0], row -> (Long) row[1]));
+            .collect(
+                Collectors.toMap(
+                    PrayerCountProjection::getPrayerName, PrayerCountProjection::getCount));
 
     long totalDays = statsFrom.until(today).getDays() + 1;
     int totalPrayers = (int) (totalDays * PrayerName.values().length);
@@ -123,7 +127,7 @@ public class PrayerTrackingService {
 
     int percentage = totalPrayers > 0 ? (completedPrayers * 100) / totalPrayers : 0;
 
-    List<Object[]> dailyCounts =
+    List<DateCountProjection> dailyCounts =
         trackingRepository.countCompletedByDate(telegramId, streakFrom, today);
     int streak = calculateStreak(dailyCounts, today);
 
@@ -139,10 +143,12 @@ public class PrayerTrackingService {
         .build();
   }
 
-  private int calculateStreak(List<Object[]> dailyCounts, LocalDate today) {
+  private int calculateStreak(List<DateCountProjection> dailyCounts, LocalDate today) {
     Map<LocalDate, Long> completedByDate =
         dailyCounts.stream()
-            .collect(Collectors.toMap(row -> (LocalDate) row[0], row -> (Long) row[1]));
+            .collect(
+                Collectors.toMap(
+                    DateCountProjection::getPrayerDate, DateCountProjection::getCount));
 
     int expectedPrayers = PrayerName.values().length;
     int streak = 0;

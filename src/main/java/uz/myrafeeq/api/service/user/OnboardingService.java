@@ -1,11 +1,8 @@
 package uz.myrafeeq.api.service.user;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.request.OnboardingRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.OnboardingResponse;
@@ -38,7 +35,6 @@ public class OnboardingService {
   private final PreferencesMapper preferencesMapper;
   private final CityMapper cityMapper;
   private final UserMapper userMapper;
-  private final ObjectMapper objectMapper;
 
   @Transactional
   public OnboardingResponse completeOnboarding(Long telegramId, OnboardingRequest request) {
@@ -78,7 +74,7 @@ public class OnboardingService {
                 request.reminderTiming() != null
                     ? request.reminderTiming()
                     : ReminderTiming.ON_TIME)
-            .prayerNotifications(toJson(request.prayerNotifications()))
+            .prayerNotifications(request.prayerNotifications())
             .build();
 
     prefs = preferencesRepository.save(prefs);
@@ -91,16 +87,5 @@ public class OnboardingService {
         .user(userMapper.toUserResponse(user))
         .preferences(preferencesMapper.toPreferencesResponse(prefs, cityResponse))
         .build();
-  }
-
-  private String toJson(Map<String, ?> map) {
-    if (map == null) {
-      return null;
-    }
-    try {
-      return objectMapper.writeValueAsString(map);
-    } catch (JacksonException e) {
-      throw new IllegalStateException("Failed to serialize preferences to JSON", e);
-    }
   }
 }

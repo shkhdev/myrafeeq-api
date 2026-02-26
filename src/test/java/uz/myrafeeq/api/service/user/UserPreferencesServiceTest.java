@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
@@ -36,7 +35,6 @@ class UserPreferencesServiceTest {
   @Mock private CityRepository cityRepository;
   @Mock private PreferencesMapper preferencesMapper;
   @Mock private CityMapper cityMapper;
-  @Mock private ObjectMapper objectMapper;
   @InjectMocks private UserPreferencesService preferencesService;
 
   @Test

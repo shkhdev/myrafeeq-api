@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.Instant;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -82,11 +83,11 @@ public class UserPreferencesEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
-  private String prayerNotifications;
+  private Map<String, Boolean> prayerNotifications;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
-  private String manualAdjustments;
+  private Map<String, Integer> manualAdjustments;
 
   @CreatedDate
   @Column(nullable = false, updatable = false)

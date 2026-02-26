@@ -1,7 +1,9 @@
 package uz.myrafeeq.api.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,9 +11,13 @@ import uz.myrafeeq.api.entity.CityEntity;
 
 public interface CityRepository extends JpaRepository<CityEntity, String> {
 
+  @Override
+  @EntityGraph(attributePaths = "country")
+  Optional<CityEntity> findById(String id);
+
   @Query(
       """
-      SELECT c FROM CityEntity c
+      SELECT c FROM CityEntity c JOIN FETCH c.country
       WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%'))
       ORDER BY c.name
       """)

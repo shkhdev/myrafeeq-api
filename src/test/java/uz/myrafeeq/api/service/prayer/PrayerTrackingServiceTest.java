@@ -29,6 +29,8 @@ import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
+import uz.myrafeeq.api.repository.projection.DateCountProjection;
+import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 
 @ExtendWith(MockitoExtension.class)
 class PrayerTrackingServiceTest {
@@ -244,9 +246,9 @@ class PrayerTrackingServiceTest {
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(
             List.of(
-                new Object[] {today, 5L},
-                new Object[] {today.minusDays(1), 5L},
-                new Object[] {today.minusDays(2), 5L}));
+                dateCount(today, 5L),
+                dateCount(today.minusDays(1), 5L),
+                dateCount(today.minusDays(2), 5L)));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -266,9 +268,9 @@ class PrayerTrackingServiceTest {
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(
             List.of(
-                new Object[] {today, 5L},
-                new Object[] {today.minusDays(1), 5L},
-                new Object[] {today.minusDays(3), 5L}));
+                dateCount(today, 5L),
+                dateCount(today.minusDays(1), 5L),
+                dateCount(today.minusDays(3), 5L)));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -284,15 +286,15 @@ class PrayerTrackingServiceTest {
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(
             List.of(
-                new Object[] {PrayerName.FAJR, 1L},
-                new Object[] {PrayerName.DHUHR, 1L},
-                new Object[] {PrayerName.ASR, 1L},
-                new Object[] {PrayerName.MAGHRIB, 1L},
-                new Object[] {PrayerName.ISHA, 1L}));
+                prayerCount(PrayerName.FAJR, 1L),
+                prayerCount(PrayerName.DHUHR, 1L),
+                prayerCount(PrayerName.ASR, 1L),
+                prayerCount(PrayerName.MAGHRIB, 1L),
+                prayerCount(PrayerName.ISHA, 1L)));
     given(
             trackingRepository.countCompletedByDate(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
-        .willReturn(List.<Object[]>of(new Object[] {today, 5L}));
+        .willReturn(List.of(dateCount(today, 5L)));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -330,5 +332,33 @@ class PrayerTrackingServiceTest {
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
     assertThat(result.byPrayer()).containsKeys("FAJR", "DHUHR", "ASR", "MAGHRIB", "ISHA");
+  }
+
+  private PrayerCountProjection prayerCount(PrayerName prayer, Long count) {
+    return new PrayerCountProjection() {
+      @Override
+      public PrayerName getPrayerName() {
+        return prayer;
+      }
+
+      @Override
+      public Long getCount() {
+        return count;
+      }
+    };
+  }
+
+  private DateCountProjection dateCount(LocalDate date, Long count) {
+    return new DateCountProjection() {
+      @Override
+      public LocalDate getPrayerDate() {
+        return date;
+      }
+
+      @Override
+      public Long getCount() {
+        return count;
+      }
+    };
   }
 }

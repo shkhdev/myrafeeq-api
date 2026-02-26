@@ -1,11 +1,8 @@
 package uz.myrafeeq.api.service.user;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
@@ -25,7 +22,6 @@ public class UserPreferencesService {
   private final CityRepository cityRepository;
   private final PreferencesMapper preferencesMapper;
   private final CityMapper cityMapper;
-  private final ObjectMapper objectMapper;
 
   @Transactional(readOnly = true)
   public UserPreferencesResponse getPreferences(Long telegramId) {
@@ -91,10 +87,10 @@ public class UserPreferencesService {
       prefs.setReminderTiming(request.reminderTiming());
     }
     if (request.prayerNotifications() != null) {
-      prefs.setPrayerNotifications(toJson(request.prayerNotifications()));
+      prefs.setPrayerNotifications(request.prayerNotifications());
     }
     if (request.manualAdjustments() != null) {
-      prefs.setManualAdjustments(toJson(request.manualAdjustments()));
+      prefs.setManualAdjustments(request.manualAdjustments());
     }
   }
 
@@ -103,16 +99,5 @@ public class UserPreferencesService {
       return null;
     }
     return cityRepository.findById(cityId).map(cityMapper::toCityResponse).orElse(null);
-  }
-
-  private String toJson(Map<String, ?> map) {
-    if (map == null) {
-      return null;
-    }
-    try {
-      return objectMapper.writeValueAsString(map);
-    } catch (JacksonException e) {
-      throw new IllegalStateException("Failed to serialize preferences to JSON", e);
-    }
   }
 }

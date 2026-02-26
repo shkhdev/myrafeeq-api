@@ -22,7 +22,6 @@ import uz.myrafeeq.api.enums.CalculationMethod;
 import uz.myrafeeq.api.enums.HighLatitudeRule;
 import uz.myrafeeq.api.enums.Madhab;
 import uz.myrafeeq.api.exception.PreferencesNotFoundException;
-import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 
@@ -32,7 +31,6 @@ public class PrayerTimesService {
 
   private final UserPreferencesRepository preferencesRepository;
   private final CityRepository cityRepository;
-  private final PreferencesMapper preferencesMapper;
 
   @Transactional(readOnly = true)
   public List<PrayerTimesResponse> calculatePrayerTimes(Long telegramId, LocalDate date, int days) {
@@ -47,8 +45,7 @@ public class PrayerTimesService {
     CityEntity city =
         prefs.getCityId() != null ? cityRepository.findById(prefs.getCityId()).orElse(null) : null;
 
-    PrayerCalculationParams params =
-        PrayerCalculationParams.fromPreferences(prefs, city, preferencesMapper);
+    PrayerCalculationParams params = PrayerCalculationParams.fromPreferences(prefs, city);
 
     LocalDate startDate = date != null ? date : LocalDate.now();
 
@@ -157,8 +154,7 @@ public class PrayerTimesService {
       int hijriCorrection,
       String cityName) {
 
-    static PrayerCalculationParams fromPreferences(
-        UserPreferencesEntity prefs, CityEntity city, PreferencesMapper mapper) {
+    static PrayerCalculationParams fromPreferences(UserPreferencesEntity prefs, CityEntity city) {
       return new PrayerCalculationParams(
           prefs.getLatitude() != null ? prefs.getLatitude() : 0.0,
           prefs.getLongitude() != null ? prefs.getLongitude() : 0.0,
@@ -170,7 +166,7 @@ public class PrayerTimesService {
               ? prefs.getHighLatitudeRule()
               : HighLatitudeRule.MIDDLE_OF_NIGHT,
           city != null ? city.getTimezone() : "UTC",
-          mapper.jsonToIntegerMap(prefs.getManualAdjustments()),
+          prefs.getManualAdjustments() != null ? prefs.getManualAdjustments() : Map.of(),
           prefs.getHijriCorrection() != null ? prefs.getHijriCorrection() : 0,
           city != null ? city.getName() : "Unknown");
     }

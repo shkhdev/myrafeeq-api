@@ -23,7 +23,6 @@ import uz.myrafeeq.api.enums.CalculationMethod;
 import uz.myrafeeq.api.enums.HighLatitudeRule;
 import uz.myrafeeq.api.enums.Madhab;
 import uz.myrafeeq.api.exception.PreferencesNotFoundException;
-import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 
@@ -36,7 +35,6 @@ class PrayerTimesServiceTest {
 
   @Mock private UserPreferencesRepository preferencesRepository;
   @Mock private CityRepository cityRepository;
-  @Mock private PreferencesMapper preferencesMapper;
   @InjectMocks private PrayerTimesService prayerTimesService;
 
   @Test
@@ -46,7 +44,6 @@ class PrayerTimesServiceTest {
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
-    given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
     List<PrayerTimesResponse> result =
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 1);
@@ -70,7 +67,6 @@ class PrayerTimesServiceTest {
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
-    given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
     List<PrayerTimesResponse> result =
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 3);
@@ -171,13 +167,11 @@ class PrayerTimesServiceTest {
   @Test
   void should_includeAdjustments_when_preferencesHaveAdjustments() {
     UserPreferencesEntity prefs = buildPreferences();
-    prefs.setManualAdjustments("{\"FAJR\":2,\"ISHA\":-3}");
+    prefs.setManualAdjustments(Map.of("FAJR", 2, "ISHA", -3));
     CityEntity city = buildCity();
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
-    given(preferencesMapper.jsonToIntegerMap("{\"FAJR\":2,\"ISHA\":-3}"))
-        .willReturn(Map.of("FAJR", 2, "ISHA", -3));
 
     List<PrayerTimesResponse> result =
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 1);
@@ -192,7 +186,6 @@ class PrayerTimesServiceTest {
     prefs.setCityId(null);
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
-    given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
     List<PrayerTimesResponse> result =
         prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.of(2025, 3, 10), 1);

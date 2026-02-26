@@ -32,9 +32,10 @@ public class UserEntity {
   @Column(nullable = false)
   private Long telegramId;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 64)
   private String firstName;
 
+  @Column(length = 32)
   private String username;
 
   @Column(length = 10)
