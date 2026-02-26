@@ -27,7 +27,9 @@ INSERT INTO countries (code, name, default_method, default_madhab)
 VALUES ('UZ', 'Uzbekistan', 'MBOUZ', 'HANAFI');
 
 -- Remove cities without a matching country
-DELETE FROM cities WHERE country_code NOT IN (SELECT code FROM countries);
+DELETE
+FROM cities
+WHERE country_code NOT IN (SELECT code FROM countries);
 
 -- Alter cities.country_code to VARCHAR(2) to match countries PK
 ALTER TABLE cities ALTER COLUMN country_code TYPE VARCHAR(2);

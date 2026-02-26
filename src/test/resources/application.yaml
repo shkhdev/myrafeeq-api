@@ -1,0 +1,37 @@
+server:
+  port: 0
+
+spring:
+  main:
+    banner-mode: off
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: public
+
+myrafeeq:
+  jwt:
+    secret: dGVzdC1zZWNyZXQta2V5LWZvci1teXJhZmVlcS1hcGktdGVzdGluZy1vbmx5LW11c3QtYmUtYXQtbGVhc3QtMjU2LWJpdHM=
+    ttl: PT1H
+  telegram:
+    bot-token: test-bot-token
+    auth-data-ttl: PT5M
+  rate-limit:
+    enabled: false
+    requests-per-minute: 1000
+    auth-requests-per-minute: 100
