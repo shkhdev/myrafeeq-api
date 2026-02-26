@@ -16,7 +16,12 @@ import uz.myrafeeq.api.enums.TimeFormat;
 @Mapper(componentModel = "spring")
 public abstract class PreferencesMapper {
 
-  @Autowired private ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  public void setObjectMapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   @Mapping(target = "city", source = "city")
   @Mapping(

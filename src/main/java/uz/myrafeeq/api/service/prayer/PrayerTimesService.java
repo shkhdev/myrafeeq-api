@@ -38,7 +38,7 @@ public class PrayerTimesService {
   public List<PrayerTimesResponse> calculatePrayerTimes(Long telegramId, LocalDate date, int days) {
     UserPreferencesEntity prefs =
         preferencesRepository
-            .findByTelegramId(telegramId)
+            .findById(telegramId)
             .orElseThrow(
                 () ->
                     new PreferencesNotFoundException(

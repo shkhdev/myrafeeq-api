@@ -36,11 +36,11 @@ public class PrayerTrackingService {
     List<PrayerTrackingEntity> entities;
 
     if (date != null) {
-      entities = trackingRepository.findByTelegramIdAndDate(telegramId, date);
+      entities = trackingRepository.findByTelegramIdAndPrayerDate(telegramId, date);
     } else if (from != null && to != null) {
-      entities = trackingRepository.findByTelegramIdAndDateBetween(telegramId, from, to);
+      entities = trackingRepository.findByTelegramIdAndPrayerDateBetween(telegramId, from, to);
     } else {
-      entities = trackingRepository.findByTelegramIdAndDate(telegramId, LocalDate.now());
+      entities = trackingRepository.findByTelegramIdAndPrayerDate(telegramId, LocalDate.now());
     }
 
     return trackingMapper.toTrackingResponse(entities);
@@ -63,7 +63,8 @@ public class PrayerTrackingService {
 
     PrayerTrackingEntity entity =
         trackingRepository
-            .findByTelegramIdAndDateAndPrayerName(telegramId, request.date(), request.prayer())
+            .findByTelegramIdAndPrayerDateAndPrayerName(
+                telegramId, request.date(), request.prayer())
             .map(
                 existing -> {
                   existing.setPrayed(request.prayed());
@@ -74,7 +75,7 @@ public class PrayerTrackingService {
                 () ->
                     PrayerTrackingEntity.builder()
                         .telegramId(telegramId)
-                        .date(request.date())
+                        .prayerDate(request.date())
                         .prayerName(request.prayer())
                         .prayed(request.prayed())
                         .toggledAt(now)
@@ -83,7 +84,7 @@ public class PrayerTrackingService {
     entity = trackingRepository.save(entity);
 
     return TogglePrayerResponse.builder()
-        .date(entity.getDate())
+        .date(entity.getPrayerDate())
         .prayer(entity.getPrayerName().name())
         .prayed(entity.getPrayed())
         .toggledAt(entity.getToggledAt())
@@ -93,14 +94,14 @@ public class PrayerTrackingService {
   @Transactional(readOnly = true)
   public PrayerStatsResponse getStats(Long telegramId, StatsPeriod period) {
     LocalDate today = LocalDate.now();
-    LocalDate lookbackStart = today.minusDays(MAX_STREAK_LOOKBACK);
-
-    List<PrayerTrackingEntity> allEntries =
-        trackingRepository.findByTelegramIdAndDateBetween(telegramId, lookbackStart, today);
-
     LocalDate statsFrom = today.minusDays(period.getDays());
-    List<PrayerTrackingEntity> statsEntries =
-        allEntries.stream().filter(e -> !e.getDate().isBefore(statsFrom)).toList();
+    LocalDate streakFrom = today.minusDays(MAX_STREAK_LOOKBACK);
+
+    List<Object[]> prayerCounts =
+        trackingRepository.countCompletedByPrayer(telegramId, statsFrom, today);
+    Map<PrayerName, Long> completedMap =
+        prayerCounts.stream()
+            .collect(Collectors.toMap(row -> (PrayerName) row[0], row -> (Long) row[1]));
 
     long totalDays = statsFrom.until(today).getDays() + 1;
     int totalPrayers = (int) (totalDays * PrayerName.values().length);
@@ -110,11 +111,7 @@ public class PrayerTrackingService {
 
     for (PrayerName prayer : PrayerName.values()) {
       int prayerTotal = (int) totalDays;
-      int prayerCompleted =
-          (int)
-              statsEntries.stream()
-                  .filter(e -> e.getPrayerName() == prayer && Boolean.TRUE.equals(e.getPrayed()))
-                  .count();
+      int prayerCompleted = completedMap.getOrDefault(prayer, 0L).intValue();
       completedPrayers += prayerCompleted;
       byPrayer.put(
           prayer.name(),
@@ -126,7 +123,9 @@ public class PrayerTrackingService {
 
     int percentage = totalPrayers > 0 ? (completedPrayers * 100) / totalPrayers : 0;
 
-    int streak = calculateStreak(allEntries, today);
+    List<Object[]> dailyCounts =
+        trackingRepository.countCompletedByDate(telegramId, streakFrom, today);
+    int streak = calculateStreak(dailyCounts, today);
 
     return PrayerStatsResponse.builder()
         .period(period.name())
@@ -140,11 +139,10 @@ public class PrayerTrackingService {
         .build();
   }
 
-  private int calculateStreak(List<PrayerTrackingEntity> allEntries, LocalDate today) {
+  private int calculateStreak(List<Object[]> dailyCounts, LocalDate today) {
     Map<LocalDate, Long> completedByDate =
-        allEntries.stream()
-            .filter(e -> Boolean.TRUE.equals(e.getPrayed()))
-            .collect(Collectors.groupingBy(PrayerTrackingEntity::getDate, Collectors.counting()));
+        dailyCounts.stream()
+            .collect(Collectors.toMap(row -> (LocalDate) row[0], row -> (Long) row[1]));
 
     int expectedPrayers = PrayerName.values().length;
     int streak = 0;

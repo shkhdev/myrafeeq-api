@@ -8,7 +8,6 @@ import static org.mockito.BDDMockito.given;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +44,8 @@ class PrayerTrackingServiceTest {
     LocalDate today = LocalDate.now();
     PrayerTrackingResponse response = PrayerTrackingResponse.builder().tracking(Map.of()).build();
 
-    given(trackingRepository.findByTelegramIdAndDate(TELEGRAM_ID, today)).willReturn(List.of());
+    given(trackingRepository.findByTelegramIdAndPrayerDate(TELEGRAM_ID, today))
+        .willReturn(List.of());
     given(trackingMapper.toTrackingResponse(any())).willReturn(response);
 
     PrayerTrackingResponse result = trackingService.getTracking(TELEGRAM_ID, today, null, null);
@@ -59,7 +59,7 @@ class PrayerTrackingServiceTest {
     LocalDate to = LocalDate.now();
     PrayerTrackingResponse response = PrayerTrackingResponse.builder().tracking(Map.of()).build();
 
-    given(trackingRepository.findByTelegramIdAndDateBetween(TELEGRAM_ID, from, to))
+    given(trackingRepository.findByTelegramIdAndPrayerDateBetween(TELEGRAM_ID, from, to))
         .willReturn(List.of());
     given(trackingMapper.toTrackingResponse(any())).willReturn(response);
 
@@ -72,7 +72,7 @@ class PrayerTrackingServiceTest {
   void should_defaultToToday_when_noDateParams() {
     PrayerTrackingResponse response = PrayerTrackingResponse.builder().tracking(Map.of()).build();
 
-    given(trackingRepository.findByTelegramIdAndDate(eq(TELEGRAM_ID), any(LocalDate.class)))
+    given(trackingRepository.findByTelegramIdAndPrayerDate(eq(TELEGRAM_ID), any(LocalDate.class)))
         .willReturn(List.of());
     given(trackingMapper.toTrackingResponse(any())).willReturn(response);
 
@@ -87,7 +87,7 @@ class PrayerTrackingServiceTest {
     TogglePrayerRequest request = new TogglePrayerRequest(today, PrayerName.FAJR, true);
 
     given(
-            trackingRepository.findByTelegramIdAndDateAndPrayerName(
+            trackingRepository.findByTelegramIdAndPrayerDateAndPrayerName(
                 TELEGRAM_ID, today, PrayerName.FAJR))
         .willReturn(Optional.empty());
 
@@ -95,7 +95,7 @@ class PrayerTrackingServiceTest {
         PrayerTrackingEntity.builder()
             .id(UUID.randomUUID())
             .telegramId(TELEGRAM_ID)
-            .date(today)
+            .prayerDate(today)
             .prayerName(PrayerName.FAJR)
             .prayed(true)
             .toggledAt(Instant.now())
@@ -118,14 +118,14 @@ class PrayerTrackingServiceTest {
         PrayerTrackingEntity.builder()
             .id(UUID.randomUUID())
             .telegramId(TELEGRAM_ID)
-            .date(today)
+            .prayerDate(today)
             .prayerName(PrayerName.DHUHR)
             .prayed(true)
             .toggledAt(Instant.now().minusSeconds(60))
             .build();
 
     given(
-            trackingRepository.findByTelegramIdAndDateAndPrayerName(
+            trackingRepository.findByTelegramIdAndPrayerDateAndPrayerName(
                 TELEGRAM_ID, today, PrayerName.DHUHR))
         .willReturn(Optional.of(existing));
     given(trackingRepository.save(any(PrayerTrackingEntity.class)))
@@ -162,7 +162,7 @@ class PrayerTrackingServiceTest {
     TogglePrayerRequest request = new TogglePrayerRequest(sevenDaysAgo, PrayerName.ASR, true);
 
     given(
-            trackingRepository.findByTelegramIdAndDateAndPrayerName(
+            trackingRepository.findByTelegramIdAndPrayerDateAndPrayerName(
                 TELEGRAM_ID, sevenDaysAgo, PrayerName.ASR))
         .willReturn(Optional.empty());
 
@@ -170,7 +170,7 @@ class PrayerTrackingServiceTest {
         PrayerTrackingEntity.builder()
             .id(UUID.randomUUID())
             .telegramId(TELEGRAM_ID)
-            .date(sevenDaysAgo)
+            .prayerDate(sevenDaysAgo)
             .prayerName(PrayerName.ASR)
             .prayed(true)
             .toggledAt(Instant.now())
@@ -188,7 +188,7 @@ class PrayerTrackingServiceTest {
     TogglePrayerRequest request = new TogglePrayerRequest(today, PrayerName.MAGHRIB, true);
 
     given(
-            trackingRepository.findByTelegramIdAndDateAndPrayerName(
+            trackingRepository.findByTelegramIdAndPrayerDateAndPrayerName(
                 TELEGRAM_ID, today, PrayerName.MAGHRIB))
         .willReturn(Optional.empty());
 
@@ -196,7 +196,7 @@ class PrayerTrackingServiceTest {
         PrayerTrackingEntity.builder()
             .id(UUID.randomUUID())
             .telegramId(TELEGRAM_ID)
-            .date(today)
+            .prayerDate(today)
             .prayerName(PrayerName.MAGHRIB)
             .prayed(true)
             .toggledAt(Instant.now())
@@ -213,7 +213,11 @@ class PrayerTrackingServiceTest {
   @EnumSource(StatsPeriod.class)
   void should_returnStats_when_anyPeriod(StatsPeriod period) {
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(List.of());
+    given(
+            trackingRepository.countCompletedByDate(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(List.of());
 
@@ -230,12 +234,19 @@ class PrayerTrackingServiceTest {
   @Test
   void should_calculateStreak_when_consecutiveDaysCompleted() {
     LocalDate today = LocalDate.now();
-    List<PrayerTrackingEntity> entries = buildCompleteDayEntries(today, 3);
 
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
-        .willReturn(entries);
+        .willReturn(List.of());
+    given(
+            trackingRepository.countCompletedByDate(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(
+            List.of(
+                new Object[] {today, 5L},
+                new Object[] {today.minusDays(1), 5L},
+                new Object[] {today.minusDays(2), 5L}));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -245,16 +256,19 @@ class PrayerTrackingServiceTest {
   @Test
   void should_breakStreak_when_dayMissed() {
     LocalDate today = LocalDate.now();
-    // Complete today and yesterday, skip day before
-    List<PrayerTrackingEntity> entries = new ArrayList<>();
-    entries.addAll(buildCompleteDayEntries(today, 2));
-    // Day -2 is missing, day -3 is complete
-    entries.addAll(buildSingleDayEntries(today.minusDays(3)));
 
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
-        .willReturn(entries);
+        .willReturn(List.of());
+    given(
+            trackingRepository.countCompletedByDate(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(
+            List.of(
+                new Object[] {today, 5L},
+                new Object[] {today.minusDays(1), 5L},
+                new Object[] {today.minusDays(3), 5L}));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -264,12 +278,21 @@ class PrayerTrackingServiceTest {
   @Test
   void should_calculatePercentage_when_someCompleted() {
     LocalDate today = LocalDate.now();
-    List<PrayerTrackingEntity> entries = buildCompleteDayEntries(today, 1);
 
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
-        .willReturn(entries);
+        .willReturn(
+            List.of(
+                new Object[] {PrayerName.FAJR, 1L},
+                new Object[] {PrayerName.DHUHR, 1L},
+                new Object[] {PrayerName.ASR, 1L},
+                new Object[] {PrayerName.MAGHRIB, 1L},
+                new Object[] {PrayerName.ISHA, 1L}));
+    given(
+            trackingRepository.countCompletedByDate(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(List.<Object[]>of(new Object[] {today, 5L}));
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
@@ -280,7 +303,11 @@ class PrayerTrackingServiceTest {
   @Test
   void should_returnZeroStreak_when_noEntries() {
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(List.of());
+    given(
+            trackingRepository.countCompletedByDate(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(List.of());
 
@@ -292,36 +319,16 @@ class PrayerTrackingServiceTest {
   @Test
   void should_countAllPrayerTypes_when_buildingStats() {
     given(
-            trackingRepository.findByTelegramIdAndDateBetween(
+            trackingRepository.countCompletedByPrayer(
+                eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
+        .willReturn(List.of());
+    given(
+            trackingRepository.countCompletedByDate(
                 eq(TELEGRAM_ID), any(LocalDate.class), any(LocalDate.class)))
         .willReturn(List.of());
 
     PrayerStatsResponse result = trackingService.getStats(TELEGRAM_ID, StatsPeriod.WEEK);
 
     assertThat(result.byPrayer()).containsKeys("FAJR", "DHUHR", "ASR", "MAGHRIB", "ISHA");
-  }
-
-  private List<PrayerTrackingEntity> buildCompleteDayEntries(LocalDate endDate, int days) {
-    List<PrayerTrackingEntity> entries = new ArrayList<>();
-    for (int d = 0; d < days; d++) {
-      entries.addAll(buildSingleDayEntries(endDate.minusDays(d)));
-    }
-    return entries;
-  }
-
-  private List<PrayerTrackingEntity> buildSingleDayEntries(LocalDate date) {
-    List<PrayerTrackingEntity> entries = new ArrayList<>();
-    for (PrayerName prayer : PrayerName.values()) {
-      entries.add(
-          PrayerTrackingEntity.builder()
-              .id(UUID.randomUUID())
-              .telegramId(TELEGRAM_ID)
-              .date(date)
-              .prayerName(prayer)
-              .prayed(true)
-              .toggledAt(Instant.now())
-              .build());
-    }
-    return entries;
   }
 }

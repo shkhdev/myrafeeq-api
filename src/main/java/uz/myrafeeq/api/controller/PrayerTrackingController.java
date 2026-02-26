@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,6 @@ import uz.myrafeeq.api.dto.response.PrayerStatsResponse;
 import uz.myrafeeq.api.dto.response.PrayerTrackingResponse;
 import uz.myrafeeq.api.dto.response.TogglePrayerResponse;
 import uz.myrafeeq.api.enums.StatsPeriod;
-import uz.myrafeeq.api.security.AuthenticatedUser;
 import uz.myrafeeq.api.service.prayer.PrayerTrackingService;
 
 @RestController
@@ -40,6 +40,7 @@ public class PrayerTrackingController {
       description = "Returns prayer tracking data for a date or date range.")
   @ApiResponse(responseCode = "200", description = "Tracking data retrieved successfully")
   public ResponseEntity<PrayerTrackingResponse> getTracking(
+      @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Single date", example = "2026-02-24")
           @RequestParam(required = false)
           LocalDate date,
@@ -50,8 +51,7 @@ public class PrayerTrackingController {
           @RequestParam(required = false)
           LocalDate to) {
 
-    return ResponseEntity.ok(
-        trackingService.getTracking(AuthenticatedUser.getTelegramId(), date, from, to));
+    return ResponseEntity.ok(trackingService.getTracking(telegramId, date, from, to));
   }
 
   @PostMapping("/toggle")
@@ -70,10 +70,9 @@ public class PrayerTrackingController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<TogglePrayerResponse> togglePrayer(
-      @Valid @RequestBody TogglePrayerRequest request) {
+      @AuthenticationPrincipal Long telegramId, @Valid @RequestBody TogglePrayerRequest request) {
 
-    return ResponseEntity.ok(
-        trackingService.togglePrayer(AuthenticatedUser.getTelegramId(), request));
+    return ResponseEntity.ok(trackingService.togglePrayer(telegramId, request));
   }
 
   @GetMapping("/stats")
@@ -85,10 +84,11 @@ public class PrayerTrackingController {
           (WEEK, MONTH, YEAR).""")
   @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully")
   public ResponseEntity<PrayerStatsResponse> getStats(
+      @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Period: WEEK, MONTH, YEAR", example = "WEEK")
           @RequestParam(defaultValue = "WEEK")
           StatsPeriod period) {
 
-    return ResponseEntity.ok(trackingService.getStats(AuthenticatedUser.getTelegramId(), period));
+    return ResponseEntity.ok(trackingService.getStats(telegramId, period));
   }
 }

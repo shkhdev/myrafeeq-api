@@ -29,6 +29,7 @@ public class SecurityConfiguration {
   };
 
   private final JwtAuthFilter jwtAuthFilter;
+  private final CorsProperties corsProperties;
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,7 +46,7 @@ public class SecurityConfiguration {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOriginPatterns(List.of("*"));
+    config.setAllowedOriginPatterns(corsProperties.allowedOrigins());
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(
         List.of("Authorization", "Content-Type", "X-Request-Id", "Ngrok-Skip-Browser-Warning"));

@@ -36,7 +36,7 @@ import uz.myrafeeq.api.enums.PrayerName;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uq_tracking_user_date_prayer",
-            columnNames = {"telegram_id", "date", "prayer_name"}))
+            columnNames = {"telegram_id", "prayer_date", "prayer_name"}))
 @EntityListeners(AuditingEntityListener.class)
 public class PrayerTrackingEntity {
 
@@ -47,8 +47,8 @@ public class PrayerTrackingEntity {
   @Column(nullable = false)
   private Long telegramId;
 
-  @Column(nullable = false)
-  private LocalDate date;
+  @Column(name = "prayer_date", nullable = false)
+  private LocalDate prayerDate;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uz.myrafeeq.api.dto.response.PrayerTimesResponse;
 import uz.myrafeeq.api.enums.CalculationMethod;
 import uz.myrafeeq.api.enums.Madhab;
-import uz.myrafeeq.api.security.AuthenticatedUser;
 import uz.myrafeeq.api.service.prayer.PrayerTimesService;
 
 @Validated
@@ -39,6 +39,7 @@ public class PrayerTimesController {
           Returns prayer times for the authenticated user based on their \
           saved preferences and location.""")
   public ResponseEntity<List<PrayerTimesResponse>> getPrayerTimes(
+      @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Date (defaults to today)", example = "2026-02-24")
           @RequestParam(required = false)
           LocalDate date,
@@ -46,8 +47,7 @@ public class PrayerTimesController {
           @RequestParam(required = false, defaultValue = "1")
           @Min(1) @Max(30) int days) {
 
-    return ResponseEntity.ok(
-        prayerTimesService.calculatePrayerTimes(AuthenticatedUser.getTelegramId(), date, days));
+    return ResponseEntity.ok(prayerTimesService.calculatePrayerTimes(telegramId, date, days));
   }
 
   @GetMapping("/by-location")

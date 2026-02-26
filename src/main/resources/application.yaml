@@ -50,6 +50,9 @@ logging:
     uz.myrafeeq.api.service.auth: DEBUG
 
 myrafeeq:
+  cors:
+    allowed-origins:
+      - "https://web.telegram.org"
   jwt:
     secret: ${JWT_SECRET}
     ttl: PT24H

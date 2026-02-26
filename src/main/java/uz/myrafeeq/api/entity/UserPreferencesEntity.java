@@ -5,13 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,10 +39,7 @@ import uz.myrafeeq.api.enums.TimeFormat;
 public class UserPreferencesEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
-
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private Long telegramId;
 
   private String cityId;
@@ -110,7 +104,7 @@ public class UserPreferencesEntity {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof UserPreferencesEntity that)) return false;
-    return id != null && id.equals(that.id);
+    return telegramId != null && telegramId.equals(that.telegramId);
   }
 
   @Override

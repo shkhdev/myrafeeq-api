@@ -14,7 +14,7 @@ public class PrayerTrackingMapper {
     Map<String, Map<String, Boolean>> tracking = new LinkedHashMap<>();
 
     for (PrayerTrackingEntity entity : entities) {
-      String dateKey = entity.getDate().toString();
+      String dateKey = entity.getPrayerDate().toString();
       tracking
           .computeIfAbsent(dateKey, _ -> new LinkedHashMap<>())
           .put(entity.getPrayerName().name(), entity.getPrayed());

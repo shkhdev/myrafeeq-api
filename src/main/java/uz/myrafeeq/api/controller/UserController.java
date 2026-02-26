@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,7 +22,7 @@ import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
 import uz.myrafeeq.api.dto.response.ErrorResponse;
 import uz.myrafeeq.api.dto.response.OnboardingResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
-import uz.myrafeeq.api.security.AuthenticatedUser;
+import uz.myrafeeq.api.service.user.OnboardingService;
 import uz.myrafeeq.api.service.user.UserPreferencesService;
 
 @RestController
@@ -31,6 +32,7 @@ import uz.myrafeeq.api.service.user.UserPreferencesService;
 public class UserController {
 
   private final UserPreferencesService preferencesService;
+  private final OnboardingService onboardingService;
 
   @GetMapping("/preferences")
   @Operation(
@@ -44,8 +46,9 @@ public class UserController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
-  public ResponseEntity<UserPreferencesResponse> getPreferences() {
-    return ResponseEntity.ok(preferencesService.getPreferences(AuthenticatedUser.getTelegramId()));
+  public ResponseEntity<UserPreferencesResponse> getPreferences(
+      @AuthenticationPrincipal Long telegramId) {
+    return ResponseEntity.ok(preferencesService.getPreferences(telegramId));
   }
 
   @PutMapping("/preferences")
@@ -62,10 +65,10 @@ public class UserController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<UserPreferencesResponse> updatePreferences(
+      @AuthenticationPrincipal Long telegramId,
       @Valid @RequestBody UpdatePreferencesRequest request) {
 
-    return ResponseEntity.ok(
-        preferencesService.updatePreferences(AuthenticatedUser.getTelegramId(), request));
+    return ResponseEntity.ok(preferencesService.updatePreferences(telegramId, request));
   }
 
   @PostMapping("/onboarding")
@@ -84,9 +87,9 @@ public class UserController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<OnboardingResponse> completeOnboarding(
-      @Valid @RequestBody OnboardingRequest request) {
+      @AuthenticationPrincipal Long telegramId, @Valid @RequestBody OnboardingRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(preferencesService.completeOnboarding(AuthenticatedUser.getTelegramId(), request));
+        .body(onboardingService.completeOnboarding(telegramId, request));
   }
 }

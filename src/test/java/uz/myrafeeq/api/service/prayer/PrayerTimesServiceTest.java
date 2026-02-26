@@ -44,7 +44,7 @@ class PrayerTimesServiceTest {
     UserPreferencesEntity prefs = buildPreferences();
     CityEntity city = buildCity();
 
-    given(preferencesRepository.findByTelegramId(TELEGRAM_ID)).willReturn(Optional.of(prefs));
+    given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
     given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
@@ -68,7 +68,7 @@ class PrayerTimesServiceTest {
     UserPreferencesEntity prefs = buildPreferences();
     CityEntity city = buildCity();
 
-    given(preferencesRepository.findByTelegramId(TELEGRAM_ID)).willReturn(Optional.of(prefs));
+    given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
     given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
@@ -83,7 +83,7 @@ class PrayerTimesServiceTest {
 
   @Test
   void should_throwPreferencesNotFound_when_noPreferences() {
-    given(preferencesRepository.findByTelegramId(TELEGRAM_ID)).willReturn(Optional.empty());
+    given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.empty());
 
     assertThatThrownBy(
             () -> prayerTimesService.calculatePrayerTimes(TELEGRAM_ID, LocalDate.now(), 1))
@@ -174,7 +174,7 @@ class PrayerTimesServiceTest {
     prefs.setManualAdjustments("{\"FAJR\":2,\"ISHA\":-3}");
     CityEntity city = buildCity();
 
-    given(preferencesRepository.findByTelegramId(TELEGRAM_ID)).willReturn(Optional.of(prefs));
+    given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
     given(preferencesMapper.jsonToIntegerMap("{\"FAJR\":2,\"ISHA\":-3}"))
         .willReturn(Map.of("FAJR", 2, "ISHA", -3));
@@ -191,7 +191,7 @@ class PrayerTimesServiceTest {
     UserPreferencesEntity prefs = buildPreferences();
     prefs.setCityId(null);
 
-    given(preferencesRepository.findByTelegramId(TELEGRAM_ID)).willReturn(Optional.of(prefs));
+    given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(preferencesMapper.jsonToIntegerMap(null)).willReturn(Map.of());
 
     List<PrayerTimesResponse> result =
