@@ -6,14 +6,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +27,7 @@ import uz.myrafeeq.api.service.user.UserPreferencesService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/user")
 @Tag(name = "User", description = "User preferences and onboarding")
 public class UserController {
 
@@ -51,7 +51,7 @@ public class UserController {
     return ResponseEntity.ok(preferencesService.getPreferences(telegramId));
   }
 
-  @PutMapping("/preferences")
+  @PatchMapping("/preferences")
   @Operation(
       summary = "Update user preferences",
       description =
@@ -59,7 +59,21 @@ public class UserController {
   @ApiResponse(responseCode = "200", description = "Preferences updated successfully")
   @ApiResponse(
       responseCode = "404",
-      description = "Preferences not found",
+      description = "Preferences or city not found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Validation error",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Concurrent modification conflict",
       content =
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -86,10 +100,24 @@ public class UserController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "User or city not found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Validation error",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<OnboardingResponse> completeOnboarding(
       @AuthenticationPrincipal Long telegramId, @Valid @RequestBody OnboardingRequest request) {
 
-    return ResponseEntity.status(HttpStatus.CREATED)
+    return ResponseEntity.created(URI.create("/api/v1/user/preferences"))
         .body(onboardingService.completeOnboarding(telegramId, request));
   }
 }

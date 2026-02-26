@@ -9,7 +9,8 @@ public abstract sealed class MyRafeeqException extends RuntimeException
         PreferencesNotFoundException,
         CityNotFoundException,
         TrackingValidationException,
-        OnboardingAlreadyCompletedException {
+        OnboardingAlreadyCompletedException,
+        RequestValidationException {
 
   private final String code;
 

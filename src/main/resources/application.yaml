@@ -1,12 +1,23 @@
 server:
   port: ${SERVER_PORT}
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 256
 
 spring:
   application:
     name: myrafeeq-api
   main:
     banner-mode: off
+  threads:
+    virtual:
+      enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   jackson:
+    default-property-inclusion: non_null
     mapper:
       accept-case-insensitive-enums: true
   datasource:
@@ -15,9 +26,12 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: ${DB_POOL_SIZE:10}
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:5}
       connection-timeout: 5000
       idle-timeout: 300000
+      max-lifetime: 1800000
+      leak-detection-threshold: 30000
   jpa:
     hibernate:
       ddl-auto: validate
@@ -59,3 +73,7 @@ myrafeeq:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
     auth-data-ttl: PT5M
+  rate-limit:
+    enabled: true
+    requests-per-minute: 60
+    auth-requests-per-minute: 120

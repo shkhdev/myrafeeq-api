@@ -1,6 +1,7 @@
 package uz.myrafeeq.api.configuration;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import tools.jackson.databind.ObjectMapper;
+import uz.myrafeeq.api.dto.response.ErrorResponse;
 import uz.myrafeeq.api.security.JwtAuthFilter;
 
 @Configuration
@@ -21,17 +24,20 @@ import uz.myrafeeq.api.security.JwtAuthFilter;
 public class SecurityConfiguration {
 
   public static final String[] PUBLIC_PATHS = {
-    "/api/auth/**",
-    "/api/prayer-times/by-location",
-    "/api/cities/**",
+    "/api/v1/auth/**",
+    "/api/v1/prayer-times/by-location",
+    "/api/v1/cities/**",
     "/swagger-ui/**",
     "/v3/api-docs/**",
     "/actuator/health",
-    "/actuator/info"
+    "/actuator/health/**",
+    "/actuator/info",
+    "/actuator/prometheus"
   };
 
   private final JwtAuthFilter jwtAuthFilter;
   private final CorsProperties corsProperties;
+  private final ObjectMapper objectMapper;
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -48,10 +54,13 @@ public class SecurityConfiguration {
                     (request, response, authException) -> {
                       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                      response
-                          .getWriter()
-                          .write(
-                              "{\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Authentication required\"}}");
+                      ErrorResponse errorResponse =
+                          ErrorResponse.of(
+                              "UNAUTHORIZED",
+                              "Authentication required",
+                              Instant.now(),
+                              request.getRequestURI());
+                      response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
                     }))
         .build();
   }
@@ -60,7 +69,7 @@ public class SecurityConfiguration {
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(
         List.of("Authorization", "Content-Type", "X-Request-Id", "Ngrok-Skip-Browser-Warning"));
     config.setExposedHeaders(List.of("X-Request-Id"));

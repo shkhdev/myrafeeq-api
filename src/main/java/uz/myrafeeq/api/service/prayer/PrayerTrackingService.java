@@ -2,14 +2,16 @@ package uz.myrafeeq.api.service.prayer;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.TogglePrayerRequest;
@@ -21,11 +23,10 @@ import uz.myrafeeq.api.enums.PrayerName;
 import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
-import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
-import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.projection.DateCountProjection;
 import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
+import uz.myrafeeq.api.service.user.UserTimezoneResolver;
 
 @Slf4j
 @Service
@@ -33,12 +34,12 @@ import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
 public class PrayerTrackingService {
 
   private static final int MAX_PAST_DAYS = 7;
+  private static final int MAX_DATE_RANGE_DAYS = 90;
   private static final int MAX_STREAK_LOOKBACK = 365;
 
   private final PrayerTrackingRepository trackingRepository;
   private final PrayerTrackingMapper trackingMapper;
-  private final UserPreferencesRepository preferencesRepository;
-  private final CityRepository cityRepository;
+  private final UserTimezoneResolver userTimezoneResolver;
 
   @Transactional(readOnly = true)
   public PrayerTrackingResponse getTracking(
@@ -48,19 +49,32 @@ public class PrayerTrackingService {
     if (date != null) {
       entities = trackingRepository.findByTelegramIdAndPrayerDate(telegramId, date);
     } else if (from != null && to != null) {
+      if (from.isAfter(to)) {
+        throw new TrackingValidationException("'from' date must not be after 'to' date");
+      }
+      if (ChronoUnit.DAYS.between(from, to) > MAX_DATE_RANGE_DAYS) {
+        throw new TrackingValidationException(
+            "Date range cannot exceed " + MAX_DATE_RANGE_DAYS + " days");
+      }
       entities = trackingRepository.findByTelegramIdAndPrayerDateBetween(telegramId, from, to);
     } else {
       entities =
           trackingRepository.findByTelegramIdAndPrayerDate(
-              telegramId, LocalDate.now(resolveUserTimezone(telegramId)));
+              telegramId, LocalDate.now(userTimezoneResolver.resolveTimezone(telegramId)));
     }
 
     return trackingMapper.toTrackingResponse(entities);
   }
 
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(value = "prayerStats", key = "#telegramId + '-WEEK'"),
+        @CacheEvict(value = "prayerStats", key = "#telegramId + '-MONTH'"),
+        @CacheEvict(value = "prayerStats", key = "#telegramId + '-YEAR'")
+      })
   public TogglePrayerResponse togglePrayer(Long telegramId, TogglePrayerRequest request) {
-    LocalDate today = LocalDate.now(resolveUserTimezone(telegramId));
+    LocalDate today = LocalDate.now(userTimezoneResolver.resolveTimezone(telegramId));
 
     if (request.getDate().isAfter(today)) {
       throw new TrackingValidationException("Cannot track prayers for future dates");
@@ -111,8 +125,9 @@ public class PrayerTrackingService {
   }
 
   @Transactional(readOnly = true)
+  @Cacheable(value = "prayerStats", key = "#telegramId + '-' + #period.name()")
   public PrayerStatsResponse getStats(Long telegramId, StatsPeriod period) {
-    LocalDate today = LocalDate.now(resolveUserTimezone(telegramId));
+    LocalDate today = LocalDate.now(userTimezoneResolver.resolveTimezone(telegramId));
     LocalDate statsFrom = today.minusDays(period.getDays());
     LocalDate streakFrom = today.minusDays(MAX_STREAK_LOOKBACK);
 
@@ -182,21 +197,5 @@ public class PrayerTrackingService {
     }
 
     return streak;
-  }
-
-  private ZoneId resolveUserTimezone(Long telegramId) {
-    return preferencesRepository
-        .findById(telegramId)
-        .filter(prefs -> prefs.getCityId() != null)
-        .flatMap(prefs -> cityRepository.findById(prefs.getCityId()))
-        .map(
-            city -> {
-              try {
-                return ZoneId.of(city.getTimezone());
-              } catch (Exception _) {
-                return (ZoneId) ZoneOffset.UTC;
-              }
-            })
-        .orElse(ZoneOffset.UTC);
   }
 }

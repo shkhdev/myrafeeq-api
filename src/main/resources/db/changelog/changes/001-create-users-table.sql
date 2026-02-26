@@ -14,23 +14,14 @@ CREATE TABLE users
     updated_at           TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-COMMENT
-ON TABLE users IS 'Telegram users registered via the Mini App';
-COMMENT
-ON COLUMN users.telegram_id IS 'Telegram user ID (primary key, not auto-generated)';
-COMMENT
-ON COLUMN users.first_name IS 'User first name from Telegram';
-COMMENT
-ON COLUMN users.username IS 'Telegram username (optional)';
-COMMENT
-ON COLUMN users.language_code IS 'IETF language tag from Telegram client';
-COMMENT
-ON COLUMN users.onboarding_completed IS 'Whether the user has completed the onboarding flow';
-COMMENT
-ON COLUMN users.version IS 'Optimistic locking version';
-COMMENT
-ON COLUMN users.created_at IS 'Timestamp (UTC) when record was created';
-COMMENT
-ON COLUMN users.updated_at IS 'Timestamp (UTC) when record was last updated';
+COMMENT ON TABLE users IS 'Telegram users registered via the Mini App';
+COMMENT ON COLUMN users.telegram_id IS 'Telegram user ID (primary key, not auto-generated)';
+COMMENT ON COLUMN users.first_name IS 'User first name from Telegram';
+COMMENT ON COLUMN users.username IS 'Telegram username (optional)';
+COMMENT ON COLUMN users.language_code IS 'IETF language tag from Telegram client';
+COMMENT ON COLUMN users.onboarding_completed IS 'Whether the user has completed the onboarding flow';
+COMMENT ON COLUMN users.version IS 'Optimistic locking version';
+COMMENT ON COLUMN users.created_at IS 'Timestamp (UTC) when record was created';
+COMMENT ON COLUMN users.updated_at IS 'Timestamp (UTC) when record was last updated';
 
 --rollback DROP TABLE users CASCADE;

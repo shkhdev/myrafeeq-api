@@ -2,6 +2,7 @@ package uz.myrafeeq.api.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.OnboardingRequest;
@@ -38,6 +39,7 @@ public class OnboardingService {
   private final CityMapper cityMapper;
   private final UserMapper userMapper;
 
+  @CacheEvict(value = "userTimezone", key = "#telegramId")
   @Transactional
   public OnboardingResponse completeOnboarding(Long telegramId, OnboardingRequest request) {
     UserEntity user =

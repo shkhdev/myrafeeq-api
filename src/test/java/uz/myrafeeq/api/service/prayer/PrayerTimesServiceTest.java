@@ -150,18 +150,18 @@ class PrayerTimesServiceTest {
   }
 
   @Test
-  void should_handleInvalidTimezone_when_fallbackToUtc() {
-    PrayerTimesResponse result =
-        prayerTimesService.calculatePrayerTimesByLocation(
-            TASHKENT_LAT,
-            TASHKENT_LON,
-            LocalDate.of(2025, 3, 10),
-            CalculationMethod.MWL,
-            "Invalid/Timezone",
-            Madhab.SHAFI);
-
-    assertThat(result).isNotNull();
-    assertThat(result.getTimes().getFajr()).matches("\\d{2}:\\d{2}");
+  void should_throwRequestValidationException_when_invalidTimezone() {
+    assertThatThrownBy(
+            () ->
+                prayerTimesService.calculatePrayerTimesByLocation(
+                    TASHKENT_LAT,
+                    TASHKENT_LON,
+                    LocalDate.of(2025, 3, 10),
+                    CalculationMethod.MWL,
+                    "Invalid/Timezone",
+                    Madhab.SHAFI))
+        .isInstanceOf(uz.myrafeeq.api.exception.RequestValidationException.class)
+        .hasMessageContaining("Invalid timezone");
   }
 
   @Test

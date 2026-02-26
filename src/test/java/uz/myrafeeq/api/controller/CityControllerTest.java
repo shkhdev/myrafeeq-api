@@ -12,6 +12,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uz.myrafeeq.api.configuration.RateLimitProperties;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.CitySearchResponse;
 import uz.myrafeeq.api.dto.response.NearestCityResponse;
@@ -25,6 +26,7 @@ class CityControllerTest {
   @Autowired private MockMvc mockMvc;
   @MockitoBean private CityService cityService;
   @MockitoBean private JwtTokenProvider jwtTokenProvider;
+  @MockitoBean private RateLimitProperties rateLimitProperties;
 
   @Test
   @WithMockUser
@@ -43,7 +45,7 @@ class CityControllerTest {
     given(cityService.searchCities("Tashkent", 10)).willReturn(response);
 
     mockMvc
-        .perform(get("/api/cities/search").param("q", "Tashkent").param("limit", "10"))
+        .perform(get("/api/v1/cities").param("q", "Tashkent").param("limit", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.cities").isArray())
         .andExpect(jsonPath("$.cities[0].name").value("Tashkent"))
@@ -58,7 +60,7 @@ class CityControllerTest {
     given(cityService.searchCities("Unknown", 10)).willReturn(response);
 
     mockMvc
-        .perform(get("/api/cities/search").param("q", "Unknown"))
+        .perform(get("/api/v1/cities").param("q", "Unknown"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.cities").isEmpty());
   }
@@ -74,7 +76,7 @@ class CityControllerTest {
     given(cityService.findNearestCity(41.2995, 69.2401)).willReturn(response);
 
     mockMvc
-        .perform(get("/api/cities/nearest").param("lat", "41.2995").param("lon", "69.2401"))
+        .perform(get("/api/v1/cities/nearest").param("lat", "41.2995").param("lon", "69.2401"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.city.name").value("Tashkent"))
         .andExpect(jsonPath("$.distanceKm").value(1.23));
@@ -87,7 +89,7 @@ class CityControllerTest {
         .willThrow(new CityNotFoundException("No cities found"));
 
     mockMvc
-        .perform(get("/api/cities/nearest").param("lat", "0.0").param("lon", "0.0"))
+        .perform(get("/api/v1/cities/nearest").param("lat", "0.0").param("lon", "0.0"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error.code").value("CITY_NOT_FOUND"));
   }
@@ -99,20 +101,20 @@ class CityControllerTest {
 
     given(cityService.searchCities("Test", 10)).willReturn(response);
 
-    mockMvc.perform(get("/api/cities/search").param("q", "Test")).andExpect(status().isOk());
+    mockMvc.perform(get("/api/v1/cities").param("q", "Test")).andExpect(status().isOk());
   }
 
   @Test
   @WithMockUser
   void should_returnError_when_missingRequiredQueryParam() throws Exception {
-    mockMvc.perform(get("/api/cities/search")).andExpect(status().is5xxServerError());
+    mockMvc.perform(get("/api/v1/cities")).andExpect(status().is5xxServerError());
   }
 
   @Test
   @WithMockUser
   void should_returnError_when_missingLatLon() throws Exception {
     mockMvc
-        .perform(get("/api/cities/nearest").param("lat", "41.3"))
+        .perform(get("/api/v1/cities/nearest").param("lat", "41.3"))
         .andExpect(status().is5xxServerError());
   }
 }

@@ -25,10 +25,11 @@ Tests use **Testcontainers** (PostgreSQL), so Docker must be running. No externa
 ### Core Flow
 
 ```
-Telegram Mini App -> AuthController (POST /api/auth/validate)
+Telegram Mini App -> AuthController (POST /api/v1/auth/token)
                        -> TelegramAuthService (HMAC verification, user upsert, JWT generation)
 
 Authenticated requests -> JwtAuthFilter (Bearer token validation)
+                            -> DashboardController (aggregated main screen data)
                             -> UserController (preferences, onboarding)
                             -> PrayerTimesController (prayer time calculations)
                             -> PrayerTrackingController (daily tracking, stats)
@@ -39,19 +40,20 @@ Public requests -> CityController (city search, nearest city)
 
 ### Endpoints
 
-| Method | Path                            | Action                    | Auth     | Status |
-|--------|---------------------------------|---------------------------|----------|--------|
-| POST   | `/api/auth/validate`            | Authenticate via Telegram | Public   | 201    |
-| GET    | `/api/user/preferences`         | Get user preferences      | Required | 200    |
-| PUT    | `/api/user/preferences`         | Update user preferences   | Required | 200    |
-| POST   | `/api/user/onboarding`          | Complete onboarding       | Required | 201    |
-| GET    | `/api/prayer-times`             | Get prayer times          | Required | 200    |
-| GET    | `/api/prayer-times/by-location` | Prayer times by location  | Public   | 200    |
-| GET    | `/api/prayer-tracking`          | Get tracking data         | Required | 200    |
-| POST   | `/api/prayer-tracking/toggle`   | Toggle prayer status      | Required | 200    |
-| GET    | `/api/prayer-tracking/stats`    | Get prayer statistics     | Required | 200    |
-| GET    | `/api/cities/search`            | Search cities             | Public   | 200    |
-| GET    | `/api/cities/nearest`           | Find nearest city         | Public   | 200    |
+| Method | Path                               | Action                    | Auth     | Status |
+|--------|------------------------------------|---------------------------|----------|--------|
+| POST   | `/api/v1/auth/token`               | Authenticate via Telegram | Public   | 200    |
+| GET    | `/api/v1/dashboard`                | Aggregated dashboard data | Required | 200    |
+| GET    | `/api/v1/user/preferences`         | Get user preferences      | Required | 200    |
+| PATCH  | `/api/v1/user/preferences`         | Update user preferences   | Required | 200    |
+| POST   | `/api/v1/user/onboarding`          | Complete onboarding       | Required | 201    |
+| GET    | `/api/v1/prayer-times`             | Get prayer times          | Required | 200    |
+| GET    | `/api/v1/prayer-times/by-location` | Prayer times by location  | Public   | 200    |
+| GET    | `/api/v1/prayer-tracking`          | Get tracking data         | Required | 200    |
+| POST   | `/api/v1/prayer-tracking/toggle`   | Toggle prayer status      | Required | 200    |
+| GET    | `/api/v1/prayer-tracking/stats`    | Get prayer statistics     | Required | 200    |
+| GET    | `/api/v1/cities`                   | Search cities             | Public   | 200    |
+| GET    | `/api/v1/cities/nearest`           | Find nearest city         | Public   | 200    |
 
 ### Key Design Decisions
 

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.response.PrayerTimesResponse;
@@ -23,6 +24,7 @@ import uz.myrafeeq.api.enums.CalculationMethod;
 import uz.myrafeeq.api.enums.HighLatitudeRule;
 import uz.myrafeeq.api.enums.Madhab;
 import uz.myrafeeq.api.exception.PreferencesNotFoundException;
+import uz.myrafeeq.api.exception.RequestValidationException;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 
@@ -64,6 +66,9 @@ public class PrayerTimesService {
     return results;
   }
 
+  @Cacheable(
+      value = "prayerTimesByLocation",
+      key = "#lat + ',' + #lon + ',' + #date + ',' + #method + ',' + #timezone + ',' + #madhab")
   public PrayerTimesResponse calculatePrayerTimesByLocation(
       double lat,
       double lon,
@@ -74,6 +79,16 @@ public class PrayerTimesService {
     LocalDate targetDate = date != null ? date : LocalDate.now();
     CalculationMethod calcMethod = method != null ? method : CalculationMethod.MWL;
 
+    String tz = "UTC";
+    if (timezone != null) {
+      try {
+        ZoneId.of(timezone);
+        tz = timezone;
+      } catch (Exception _) {
+        throw new RequestValidationException("Invalid timezone: " + timezone);
+      }
+    }
+
     PrayerCalculationParams params =
         new PrayerCalculationParams(
             lat,
@@ -81,7 +96,7 @@ public class PrayerTimesService {
             calcMethod,
             madhab != null ? madhab : Madhab.SHAFI,
             HighLatitudeRule.MIDDLE_OF_NIGHT,
-            timezone != null ? timezone : "UTC",
+            tz,
             Map.of(),
             0,
             "");

@@ -2,24 +2,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/001-create-users-table.sql
   - include:
-      file: db/changelog/changes/002-create-cities-table.sql
+      file: db/changelog/changes/002-create-countries-table.sql
   - include:
-      file: db/changelog/changes/003-create-user-preferences-table.sql
+      file: db/changelog/changes/003-create-cities-table.sql
   - include:
-      file: db/changelog/changes/004-create-prayer-tracking-table.sql
+      file: db/changelog/changes/004-create-user-preferences-table.sql
   - include:
-      file: db/changelog/changes/005-seed-cities.sql
-  - include:
-      file: db/changelog/changes/006-remove-unsupported-calculation-methods.sql
-  - include:
-      file: db/changelog/changes/007-add-uzbekistan-method.sql
-  - include:
-      file: db/changelog/changes/008-create-countries-table-and-simplify-cities.sql
-  - include:
-      file: db/changelog/changes/009-drop-version-columns.sql
-  - include:
-      file: db/changelog/changes/010-add-version-columns.sql
-  - include:
-      file: db/changelog/changes/011-schema-improvements.sql
-  - include:
-      file: db/changelog/changes/012-add-trgm-index.sql
+      file: db/changelog/changes/005-create-prayer-tracking-table.sql

@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -188,10 +189,17 @@ public class TelegramAuthService {
         .findById(telegramId)
         .map(
             existing -> {
-              existing.setFirstName(firstName);
-              existing.setUsername(username);
-              existing.setLanguageCode(languageCode);
-              return userRepository.save(existing);
+              boolean changed =
+                  !firstName.equals(existing.getFirstName())
+                      || !Objects.equals(username, existing.getUsername())
+                      || !languageCode.equals(existing.getLanguageCode());
+              if (changed) {
+                existing.setFirstName(firstName);
+                existing.setUsername(username);
+                existing.setLanguageCode(languageCode);
+                return userRepository.save(existing);
+              }
+              return existing;
             })
         .orElseGet(
             () ->

@@ -8,16 +8,19 @@ import static org.mockito.BDDMockito.given;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uz.myrafeeq.api.dto.request.TogglePrayerRequest;
 import uz.myrafeeq.api.dto.response.PrayerStatsResponse;
@@ -28,11 +31,10 @@ import uz.myrafeeq.api.enums.PrayerName;
 import uz.myrafeeq.api.enums.StatsPeriod;
 import uz.myrafeeq.api.exception.TrackingValidationException;
 import uz.myrafeeq.api.mapper.PrayerTrackingMapper;
-import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.PrayerTrackingRepository;
-import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.projection.DateCountProjection;
 import uz.myrafeeq.api.repository.projection.PrayerCountProjection;
+import uz.myrafeeq.api.service.user.UserTimezoneResolver;
 
 @ExtendWith(MockitoExtension.class)
 class PrayerTrackingServiceTest {
@@ -41,9 +43,15 @@ class PrayerTrackingServiceTest {
 
   @Mock private PrayerTrackingRepository trackingRepository;
   @Mock private PrayerTrackingMapper trackingMapper;
-  @Mock private UserPreferencesRepository preferencesRepository;
-  @Mock private CityRepository cityRepository;
+  @Mock private UserTimezoneResolver userTimezoneResolver;
   @InjectMocks private PrayerTrackingService trackingService;
+
+  @BeforeEach
+  void setUp() {
+    Mockito.lenient()
+        .when(userTimezoneResolver.resolveTimezone(TELEGRAM_ID))
+        .thenReturn(ZoneOffset.UTC);
+  }
 
   @Test
   void should_returnTrackingByDate_when_dateProvided() {

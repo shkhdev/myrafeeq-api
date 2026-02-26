@@ -2,6 +2,7 @@ package uz.myrafeeq.api.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
@@ -39,6 +40,7 @@ public class UserPreferencesService {
     return preferencesMapper.toPreferencesResponse(prefs, city);
   }
 
+  @CacheEvict(value = "userTimezone", key = "#telegramId")
   @Transactional
   public UserPreferencesResponse updatePreferences(
       Long telegramId, UpdatePreferencesRequest request) {

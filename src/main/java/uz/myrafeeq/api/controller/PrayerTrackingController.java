@@ -28,7 +28,7 @@ import uz.myrafeeq.api.service.prayer.PrayerTrackingService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/prayer-tracking")
+@RequestMapping("/api/v1/prayer-tracking")
 @Tag(name = "Prayer Tracking", description = "Track daily prayer completion")
 public class PrayerTrackingController {
 
@@ -39,6 +39,13 @@ public class PrayerTrackingController {
       summary = "Get prayer tracking",
       description = "Returns prayer tracking data for a date or date range.")
   @ApiResponse(responseCode = "200", description = "Tracking data retrieved successfully")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid date range",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<PrayerTrackingResponse> getTracking(
       @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Single date", example = "2026-02-24")
@@ -64,7 +71,14 @@ public class PrayerTrackingController {
   @ApiResponse(responseCode = "200", description = "Prayer status toggled successfully")
   @ApiResponse(
       responseCode = "400",
-      description = "Validation error",
+      description = "Validation error (future date, too old, or invalid fields)",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Concurrent modification conflict",
       content =
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -83,6 +97,13 @@ public class PrayerTrackingController {
           Returns prayer completion statistics for a given period \
           (WEEK, MONTH, YEAR).""")
   @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid period",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<PrayerStatsResponse> getStats(
       @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Period: WEEK, MONTH, YEAR", example = "WEEK")

@@ -3,6 +3,7 @@ package uz.myrafeeq.api.service.city;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class CityService {
   private final CityMapper cityMapper;
 
   @Transactional(readOnly = true)
+  @Cacheable(value = "citySearch", key = "#query.toLowerCase() + '-' + #limit")
   public CitySearchResponse searchCities(String query, int limit) {
     List<CityEntity> cities = cityRepository.searchByName(query, Pageable.ofSize(limit));
 
@@ -34,6 +36,9 @@ public class CityService {
   }
 
   @Transactional(readOnly = true)
+  @Cacheable(
+      value = "nearestCity",
+      key = "T(Math).round(#lat * 100) + ',' + T(Math).round(#lon * 100)")
   public NearestCityResponse findNearestCity(double lat, double lon) {
     CityEntity city = cityRepository.findNearestCity(lat, lon);
 
