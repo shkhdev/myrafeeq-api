@@ -100,9 +100,15 @@ public class TelegramAuthService {
             .collect(Collectors.joining("\n"));
 
     try {
-      byte[] secretKey =
-          hmacSha256(
-              "WebAppData".getBytes(StandardCharsets.UTF_8), telegramProperties.getBotToken());
+      String botToken = telegramProperties.getBotToken();
+      log.debug(
+          "HMAC debug: botToken length={}, first4={}, last4={}",
+          botToken.length(),
+          botToken.substring(0, Math.min(4, botToken.length())),
+          botToken.substring(Math.max(0, botToken.length() - 4)));
+      log.debug("HMAC debug: dataCheckString='{}'", dataCheckString);
+
+      byte[] secretKey = hmacSha256("WebAppData".getBytes(StandardCharsets.UTF_8), botToken);
       byte[] hash = hmacSha256(secretKey, dataCheckString);
       String computedHash = bytesToHex(hash);
 
