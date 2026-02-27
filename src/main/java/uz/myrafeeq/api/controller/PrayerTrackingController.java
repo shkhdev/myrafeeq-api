@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ import uz.myrafeeq.api.service.prayer.PrayerTrackingService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/prayer-tracking")
 @Tag(name = "Prayer Tracking", description = "Track daily prayer completion")
+@SecurityRequirement(name = "bearerAuth")
 public class PrayerTrackingController {
 
   private final PrayerTrackingService trackingService;
@@ -47,7 +49,7 @@ public class PrayerTrackingController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<PrayerTrackingResponse> getTracking(
-      @AuthenticationPrincipal Long telegramId,
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Single date", example = "2026-02-24")
           @RequestParam(required = false)
           LocalDate date,
@@ -84,7 +86,8 @@ public class PrayerTrackingController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<TogglePrayerResponse> togglePrayer(
-      @AuthenticationPrincipal Long telegramId, @Valid @RequestBody TogglePrayerRequest request) {
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId,
+      @Valid @RequestBody TogglePrayerRequest request) {
 
     return ResponseEntity.ok(trackingService.togglePrayer(telegramId, request));
   }
@@ -105,7 +108,7 @@ public class PrayerTrackingController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<PrayerStatsResponse> getStats(
-      @AuthenticationPrincipal Long telegramId,
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId,
       @Parameter(description = "Period: WEEK, MONTH, YEAR", example = "WEEK")
           @RequestParam(defaultValue = "WEEK")
           StatsPeriod period) {

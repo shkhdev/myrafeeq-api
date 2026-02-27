@@ -1,9 +1,11 @@
 package uz.myrafeeq.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,6 +22,7 @@ import uz.myrafeeq.api.service.dashboard.DashboardService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/dashboard")
 @Tag(name = "Dashboard", description = "Aggregated data for the main screen")
+@SecurityRequirement(name = "bearerAuth")
 public class DashboardController {
 
   private final DashboardService dashboardService;
@@ -40,7 +43,8 @@ public class DashboardController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
-  public ResponseEntity<DashboardResponse> getDashboard(@AuthenticationPrincipal Long telegramId) {
+  public ResponseEntity<DashboardResponse> getDashboard(
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId) {
 
     return ResponseEntity.ok(dashboardService.getDashboard(telegramId));
   }

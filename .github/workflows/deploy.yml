@@ -79,6 +79,7 @@ jobs:
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
+              -e ADMIN_API_KEY="${{ secrets.ADMIN_API_KEY }}" \
               -e SPRING_PROFILES_ACTIVE=prod \
               -p ${{ secrets.SERVER_PORT }}:8080 \
               -d ${{ env.REGISTRY }}/${{ github.repository }}:latest

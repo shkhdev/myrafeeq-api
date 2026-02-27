@@ -1,9 +1,11 @@
 package uz.myrafeeq.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -29,6 +31,7 @@ import uz.myrafeeq.api.service.user.UserPreferencesService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 @Tag(name = "User", description = "User preferences and onboarding")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
   private final UserPreferencesService preferencesService;
@@ -47,7 +50,7 @@ public class UserController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<UserPreferencesResponse> getPreferences(
-      @AuthenticationPrincipal Long telegramId) {
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId) {
     return ResponseEntity.ok(preferencesService.getPreferences(telegramId));
   }
 
@@ -79,7 +82,7 @@ public class UserController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<UserPreferencesResponse> updatePreferences(
-      @AuthenticationPrincipal Long telegramId,
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId,
       @Valid @RequestBody UpdatePreferencesRequest request) {
 
     return ResponseEntity.ok(preferencesService.updatePreferences(telegramId, request));
@@ -115,7 +118,8 @@ public class UserController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<OnboardingResponse> completeOnboarding(
-      @AuthenticationPrincipal Long telegramId, @Valid @RequestBody OnboardingRequest request) {
+      @Parameter(hidden = true) @AuthenticationPrincipal Long telegramId,
+      @Valid @RequestBody OnboardingRequest request) {
 
     return ResponseEntity.created(URI.create("/api/v1/user/preferences"))
         .body(onboardingService.completeOnboarding(telegramId, request));

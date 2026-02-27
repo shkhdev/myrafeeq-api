@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import uz.myrafeeq.api.service.auth.TelegramAuthService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Telegram Mini App authentication")
+@SecurityRequirements
 public class AuthController {
 
   private final TelegramAuthService telegramAuthService;

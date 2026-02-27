@@ -2,6 +2,10 @@ package uz.myrafeeq.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -25,6 +29,7 @@ import uz.myrafeeq.api.dto.request.CreateCityRequest;
 import uz.myrafeeq.api.dto.request.UpdateCityRequest;
 import uz.myrafeeq.api.dto.response.AdminCityResponse;
 import uz.myrafeeq.api.dto.response.BulkCreateCitiesResponse;
+import uz.myrafeeq.api.dto.response.ErrorResponse;
 import uz.myrafeeq.api.service.admin.AdminCityService;
 
 @Validated
@@ -32,6 +37,7 @@ import uz.myrafeeq.api.service.admin.AdminCityService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/cities")
 @Tag(name = "Admin - Cities", description = "Admin management of city reference data")
+@SecurityRequirement(name = "adminApiKey")
 public class AdminCityController {
 
   private final AdminCityService cityService;
@@ -41,15 +47,33 @@ public class AdminCityController {
   public ResponseEntity<Page<AdminCityResponse>> listCities(
       @Parameter(description = "Filter by country code") @RequestParam(required = false)
           String country,
-      @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0) int page,
+      @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0)
+          int page,
       @Parameter(description = "Page size (1-100)")
           @RequestParam(defaultValue = "20")
-          @Min(1) @Max(100) int size) {
+          @Min(1)
+          @Max(100)
+          int size) {
     return ResponseEntity.ok(cityService.listCities(country, page, size));
   }
 
   @PostMapping
   @Operation(summary = "Create a city")
+  @ApiResponse(responseCode = "201", description = "City created")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Validation error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "City already exists",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<AdminCityResponse> createCity(
       @Valid @RequestBody CreateCityRequest request) {
     AdminCityResponse response = cityService.createCity(request);
@@ -59,6 +83,21 @@ public class AdminCityController {
 
   @PostMapping("/bulk")
   @Operation(summary = "Bulk create cities")
+  @ApiResponse(responseCode = "201", description = "Cities created")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Validation error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Duplicate city IDs",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<BulkCreateCitiesResponse> bulkCreateCities(
       @Valid @RequestBody BulkCreateCitiesRequest request) {
     return ResponseEntity.created(URI.create("/api/v1/admin/cities"))
@@ -67,12 +106,35 @@ public class AdminCityController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get a city by ID")
+  @ApiResponse(responseCode = "200", description = "City found")
+  @ApiResponse(
+      responseCode = "404",
+      description = "City not found",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<AdminCityResponse> getCity(@PathVariable String id) {
     return ResponseEntity.ok(cityService.getCity(id));
   }
 
   @PutMapping("/{id}")
   @Operation(summary = "Update a city")
+  @ApiResponse(responseCode = "200", description = "City updated")
+  @ApiResponse(
+      responseCode = "404",
+      description = "City not found",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Validation error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<AdminCityResponse> updateCity(
       @PathVariable String id, @Valid @RequestBody UpdateCityRequest request) {
     return ResponseEntity.ok(cityService.updateCity(id, request));
@@ -80,6 +142,14 @@ public class AdminCityController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete a city")
+  @ApiResponse(responseCode = "204", description = "City deleted")
+  @ApiResponse(
+      responseCode = "404",
+      description = "City not found",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<Void> deleteCity(@PathVariable String id) {
     cityService.deleteCity(id);
     return ResponseEntity.noContent().build();

@@ -16,15 +16,25 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Request to update a city")
 public class UpdateCityRequest {
 
-  @NotBlank @Size(max = 255) @Schema(description = "City name in English", example = "Tashkent")
+  @NotBlank
+  @Size(max = 255)
+  @Schema(description = "City name in English", example = "Tashkent")
   private String name;
 
-  @NotNull @DecimalMin("-90") @DecimalMax("90") @Schema(description = "Geographic latitude", example = "41.2995")
+  @NotNull
+  @DecimalMin("-90")
+  @DecimalMax("90")
+  @Schema(description = "Geographic latitude", example = "41.2995")
   private Double latitude;
 
-  @NotNull @DecimalMin("-180") @DecimalMax("180") @Schema(description = "Geographic longitude", example = "69.2401")
+  @NotNull
+  @DecimalMin("-180")
+  @DecimalMax("180")
+  @Schema(description = "Geographic longitude", example = "69.2401")
   private Double longitude;
 
-  @NotBlank @Size(max = 100) @Schema(description = "IANA timezone identifier", example = "Asia/Tashkent")
+  @NotBlank
+  @Size(max = 100)
+  @Schema(description = "IANA timezone identifier", example = "Asia/Tashkent")
   private String timezone;
 }

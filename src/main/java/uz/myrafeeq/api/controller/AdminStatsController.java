@@ -1,6 +1,7 @@
 package uz.myrafeeq.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import uz.myrafeeq.api.service.admin.AdminStatsService;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/stats")
 @Tag(name = "Admin - Stats", description = "System statistics")
+@SecurityRequirement(name = "adminApiKey")
 public class AdminStatsController {
 
   private final AdminStatsService statsService;

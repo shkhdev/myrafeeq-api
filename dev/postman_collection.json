@@ -1,0 +1,1102 @@
+{
+  "info": {
+    "name": "MyRafeeq API",
+    "description": "Islamic companion Telegram Mini App backend.\n\n## Authentication\n- **JWT Bearer** — Obtained via `POST /api/v1/auth/token`\n- **Admin API Key** — `X-Admin-Api-Key` header for `/admin/**` endpoints\n- **Public** — No auth required for cities, by-location, auth\n\n## Auto-token\nThe auth request automatically saves the JWT token to `{{accessToken}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "adminApiKey", "value": "" },
+    { "key": "cityId", "value": "tashkent" },
+    { "key": "countryCode", "value": "UZ" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{accessToken}}", "type": "string" }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": { "type": "text/javascript", "exec": [""] }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test(\"Response time < 2000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Telegram Mini App authentication",
+      "item": [
+        {
+          "name": "Authenticate via Telegram",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has token and user\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"token\");",
+                  "    pm.expect(json).to.have.property(\"user\");",
+                  "    pm.expect(json.user).to.have.property(\"telegramId\");",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set(\"accessToken\", json.token);",
+                  "    console.log(\"Token saved to {{accessToken}}\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initData\": \"query_id=AAHdF6IQAAAAAN0XohDhrOrc&user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Doston%22%2C%22language_code%22%3A%22uz%22%7D&auth_date=1709220000&hash=abc123def456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "token"]
+            },
+            "description": "Validates Telegram Mini App init data, verifies HMAC signature, upserts user, and returns a JWT token valid for 24 hours.\n\n**Auto-saves** the token to `{{accessToken}}` collection variable."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Aggregated data for the main screen",
+      "item": [
+        {
+          "name": "Get dashboard data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has dashboard fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"prayerTimes\");",
+                  "    pm.expect(json).to.have.property(\"tracking\");",
+                  "    pm.expect(json).to.have.property(\"stats\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "dashboard"]
+            },
+            "description": "Returns aggregated data: today's prayer times, today's tracking status, and weekly statistics."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "description": "User preferences and onboarding",
+      "item": [
+        {
+          "name": "Get user preferences",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has preference fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"city\");",
+                  "    pm.expect(json).to.have.property(\"calculationMethod\");",
+                  "    pm.expect(json).to.have.property(\"madhab\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/preferences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "preferences"]
+            },
+            "description": "Returns the current user's preferences."
+          }
+        },
+        {
+          "name": "Update user preferences",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calculationMethod\": \"MWL\",\n  \"madhab\": \"HANAFI\",\n  \"highLatitudeRule\": \"MIDDLE_OF_NIGHT\",\n  \"hijriCorrection\": 0,\n  \"timeFormat\": \"24h\",\n  \"theme\": \"SYSTEM\",\n  \"notificationsEnabled\": true,\n  \"reminderTiming\": \"ON_TIME\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/preferences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "preferences"]
+            },
+            "description": "Partially updates preferences. Only non-null fields are applied."
+          }
+        },
+        {
+          "name": "Complete onboarding",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user and preferences\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"user\");",
+                  "    pm.expect(json).to.have.property(\"preferences\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityId\": \"tashkent\",\n  \"latitude\": 41.2995,\n  \"longitude\": 69.2401,\n  \"notificationsEnabled\": true,\n  \"prayerNotifications\": {\n    \"fajr\": true,\n    \"dhuhr\": true,\n    \"asr\": true,\n    \"maghrib\": true,\n    \"isha\": true\n  },\n  \"reminderTiming\": \"ON_TIME\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/onboarding",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "onboarding"]
+            },
+            "description": "Completes onboarding. Creates initial preferences. Can only be called once per user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prayer Times",
+      "description": "Prayer time calculations",
+      "item": [
+        {
+          "name": "Get prayer times (authenticated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array with prayer times\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(json[0]).to.have.property(\"date\");",
+                  "    pm.expect(json[0]).to.have.property(\"times\");",
+                  "    pm.expect(json[0].times).to.have.property(\"fajr\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-times?days=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-times"],
+              "query": [
+                { "key": "date", "value": "", "disabled": true, "description": "Date (defaults to today), e.g. 2026-02-27" },
+                { "key": "days", "value": "1", "description": "Number of days (1-30)" }
+              ]
+            },
+            "description": "Returns prayer times based on saved preferences. Cached 5 min (private)."
+          }
+        },
+        {
+          "name": "Get prayer times (7 days)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns 7 days\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an(\"array\").with.lengthOf(7);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-times?days=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-times"],
+              "query": [
+                { "key": "days", "value": "7" }
+              ]
+            },
+            "description": "Returns prayer times for 7 days."
+          }
+        },
+        {
+          "name": "Get prayer times by location (public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has prayer times\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"date\");",
+                  "    pm.expect(json).to.have.property(\"times\");",
+                  "    pm.expect(json).to.have.property(\"meta\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-times/by-location?lat=41.2995&lon=69.2401&method=MWL&madhab=HANAFI&timezone=Asia/Tashkent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-times", "by-location"],
+              "query": [
+                { "key": "lat", "value": "41.2995", "description": "Latitude (-90 to 90)" },
+                { "key": "lon", "value": "69.2401", "description": "Longitude (-180 to 180)" },
+                { "key": "date", "value": "", "disabled": true, "description": "Date (defaults to today)" },
+                { "key": "method", "value": "MWL", "description": "Calculation method" },
+                { "key": "madhab", "value": "HANAFI", "description": "Madhab for Asr" },
+                { "key": "timezone", "value": "Asia/Tashkent", "description": "IANA timezone" }
+              ]
+            },
+            "description": "Public endpoint. Returns prayer times for any coordinates. Cached 1 hour."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prayer Tracking",
+      "description": "Track daily prayer completion",
+      "item": [
+        {
+          "name": "Get tracking (today)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has tracking map\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"tracking\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-tracking"],
+              "query": [
+                { "key": "date", "value": "", "disabled": true, "description": "Single date, e.g. 2026-02-27" }
+              ]
+            },
+            "description": "Returns prayer tracking data for today (or a specific date/range)."
+          }
+        },
+        {
+          "name": "Get tracking (date range)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has tracking map\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"tracking\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-tracking?from=2026-02-20&to=2026-02-27",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-tracking"],
+              "query": [
+                { "key": "from", "value": "2026-02-20", "description": "Range start (inclusive)" },
+                { "key": "to", "value": "2026-02-27", "description": "Range end (inclusive)" }
+              ]
+            },
+            "description": "Returns prayer tracking for a date range."
+          }
+        },
+        {
+          "name": "Toggle prayer status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has toggle fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"date\");",
+                  "    pm.expect(json).to.have.property(\"prayer\");",
+                  "    pm.expect(json).to.have.property(\"prayed\");",
+                  "    pm.expect(json).to.have.property(\"toggledAt\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-02-27\",\n  \"prayer\": \"FAJR\",\n  \"prayed\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-tracking/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-tracking", "toggle"]
+            },
+            "description": "Toggles whether a prayer was performed. Date must not be in the future and not older than 7 days."
+          }
+        },
+        {
+          "name": "Get prayer stats (week)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has stats fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"period\");",
+                  "    pm.expect(json).to.have.property(\"total\");",
+                  "    pm.expect(json).to.have.property(\"completed\");",
+                  "    pm.expect(json).to.have.property(\"percentage\");",
+                  "    pm.expect(json).to.have.property(\"byPrayer\");",
+                  "    pm.expect(json).to.have.property(\"streak\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-tracking/stats?period=WEEK",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-tracking", "stats"],
+              "query": [
+                { "key": "period", "value": "WEEK", "description": "WEEK | MONTH | YEAR" }
+              ]
+            },
+            "description": "Returns prayer completion stats for the given period."
+          }
+        },
+        {
+          "name": "Get prayer stats (month)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/prayer-tracking/stats?period=MONTH",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "prayer-tracking", "stats"],
+              "query": [
+                { "key": "period", "value": "MONTH" }
+              ]
+            },
+            "description": "Returns prayer completion stats for the last 30 days."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cities",
+      "description": "City search and lookup (public)",
+      "item": [
+        {
+          "name": "Search cities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has cities array\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"cities\");",
+                  "    pm.expect(json.cities).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cities?q=Tash&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cities"],
+              "query": [
+                { "key": "q", "value": "Tash", "description": "Search query (city name prefix)" },
+                { "key": "limit", "value": "10", "description": "Max results (1-50)" }
+              ]
+            },
+            "description": "Searches cities by name. Cached 24 hours."
+          }
+        },
+        {
+          "name": "Find nearest city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", /application\\/json/);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has city and distance\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"city\");",
+                  "    pm.expect(json).to.have.property(\"distanceKm\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cities/nearest?lat=41.3&lon=69.25",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cities", "nearest"],
+              "query": [
+                { "key": "lat", "value": "41.3", "description": "Latitude (-90 to 90)" },
+                { "key": "lon", "value": "69.25", "description": "Longitude (-180 to 180)" }
+              ]
+            },
+            "description": "Finds the nearest city using Haversine distance. Cached 24 hours."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Countries",
+      "description": "Admin management of country reference data. Requires X-Admin-Api-Key header.",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
+          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
+          { "key": "in", "value": "header", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List all countries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/countries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "countries"]
+            },
+            "description": "Returns all countries with default calculation settings."
+          }
+        },
+        {
+          "name": "Create a country",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has country fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"code\");",
+                  "    pm.expect(json).to.have.property(\"name\");",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set(\"countryCode\", json.code);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"TR\",\n  \"name\": \"Turkey\",\n  \"defaultMethod\": \"EGYPT\",\n  \"defaultMadhab\": \"HANAFI\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/countries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "countries"]
+            },
+            "description": "Creates a new country with ISO 3166-1 alpha-2 code."
+          }
+        },
+        {
+          "name": "Get country by code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has correct code\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(pm.collectionVariables.get(\"countryCode\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+            },
+            "description": "Returns a single country by code."
+          }
+        },
+        {
+          "name": "Update a country",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Uzbekistan\",\n  \"defaultMethod\": \"MBOUZ\",\n  \"defaultMadhab\": \"HANAFI\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+            },
+            "description": "Updates a country's name and default settings."
+          }
+        },
+        {
+          "name": "Delete a country",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+            },
+            "description": "Deletes a country."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Cities",
+      "description": "Admin management of city reference data. Requires X-Admin-Api-Key header.",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
+          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
+          { "key": "in", "value": "header", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List cities (paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has pagination fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"content\");",
+                  "    pm.expect(json).to.have.property(\"totalElements\");",
+                  "    pm.expect(json).to.have.property(\"totalPages\");",
+                  "    pm.expect(json.content).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities"],
+              "query": [
+                { "key": "country", "value": "UZ", "disabled": true, "description": "Filter by country code" },
+                { "key": "page", "value": "0", "description": "Page number (0-based)" },
+                { "key": "size", "value": "20", "description": "Page size (1-100)" }
+              ]
+            },
+            "description": "Returns a paginated list of cities, optionally filtered by country."
+          }
+        },
+        {
+          "name": "Create a city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has city fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"name\");",
+                  "    pm.expect(json).to.have.property(\"countryCode\");",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set(\"cityId\", json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"samarkand\",\n  \"name\": \"Samarkand\",\n  \"countryCode\": \"UZ\",\n  \"latitude\": 39.6542,\n  \"longitude\": 66.9597,\n  \"timezone\": \"Asia/Samarkand\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities"]
+            },
+            "description": "Creates a new city. ID must be unique, lowercase, alphanumeric with hyphens/underscores."
+          }
+        },
+        {
+          "name": "Bulk create cities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has created count and cities\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"created\");",
+                  "    pm.expect(json).to.have.property(\"cities\");",
+                  "    pm.expect(json.cities).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cities\": [\n    {\n      \"id\": \"bukhara\",\n      \"name\": \"Bukhara\",\n      \"countryCode\": \"UZ\",\n      \"latitude\": 39.7745,\n      \"longitude\": 64.4286,\n      \"timezone\": \"Asia/Samarkand\"\n    },\n    {\n      \"id\": \"namangan\",\n      \"name\": \"Namangan\",\n      \"countryCode\": \"UZ\",\n      \"latitude\": 41.0011,\n      \"longitude\": 71.6722,\n      \"timezone\": \"Asia/Tashkent\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities", "bulk"]
+            },
+            "description": "Creates multiple cities in one request. Up to 500 per batch."
+          }
+        },
+        {
+          "name": "Get city by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has city fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"name\");",
+                  "    pm.expect(json).to.have.property(\"latitude\");",
+                  "    pm.expect(json).to.have.property(\"longitude\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+            },
+            "description": "Returns a single city by ID."
+          }
+        },
+        {
+          "name": "Update a city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tashkent\",\n  \"latitude\": 41.2995,\n  \"longitude\": 69.2401,\n  \"timezone\": \"Asia/Tashkent\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+            },
+            "description": "Updates a city's name, coordinates, and timezone."
+          }
+        },
+        {
+          "name": "Delete a city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+            },
+            "description": "Deletes a city."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Stats",
+      "description": "System statistics. Requires X-Admin-Api-Key header.",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
+          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
+          { "key": "in", "value": "header", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get system statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has stats fields\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"totalUsers\");",
+                  "    pm.expect(json).to.have.property(\"onboardedUsers\");",
+                  "    pm.expect(json).to.have.property(\"totalCountries\");",
+                  "    pm.expect(json).to.have.property(\"totalCities\");",
+                  "    pm.expect(json).to.have.property(\"totalTrackingRecords\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "stats"]
+            },
+            "description": "Returns platform-wide statistics."
+          }
+        }
+      ]
+    }
+  ]
+}

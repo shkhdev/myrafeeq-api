@@ -17,24 +17,39 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Request to create a city")
 public class CreateCityRequest {
 
-  @NotBlank @Size(max = 100) @Pattern(
+  @NotBlank
+  @Size(max = 100)
+  @Pattern(
       regexp = "^[a-z0-9_-]+$",
       message = "Must be URL-safe (lowercase, digits, hyphens, underscores)")
   @Schema(description = "URL-safe city identifier", example = "tashkent")
   private String id;
 
-  @NotBlank @Size(max = 255) @Schema(description = "City name in English", example = "Tashkent")
+  @NotBlank
+  @Size(max = 255)
+  @Schema(description = "City name in English", example = "Tashkent")
   private String name;
 
-  @NotBlank @Size(min = 2, max = 2) @Pattern(regexp = "^[A-Z]{2}$", message = "Must be a 2-letter uppercase ISO country code") @Schema(description = "ISO 3166-1 alpha-2 country code", example = "UZ")
+  @NotBlank
+  @Size(min = 2, max = 2)
+  @Pattern(regexp = "^[A-Z]{2}$", message = "Must be a 2-letter uppercase ISO country code")
+  @Schema(description = "ISO 3166-1 alpha-2 country code", example = "UZ")
   private String countryCode;
 
-  @NotNull @DecimalMin("-90") @DecimalMax("90") @Schema(description = "Geographic latitude", example = "41.2995")
+  @NotNull
+  @DecimalMin("-90")
+  @DecimalMax("90")
+  @Schema(description = "Geographic latitude", example = "41.2995")
   private Double latitude;
 
-  @NotNull @DecimalMin("-180") @DecimalMax("180") @Schema(description = "Geographic longitude", example = "69.2401")
+  @NotNull
+  @DecimalMin("-180")
+  @DecimalMax("180")
+  @Schema(description = "Geographic longitude", example = "69.2401")
   private Double longitude;
 
-  @NotBlank @Size(max = 100) @Schema(description = "IANA timezone identifier", example = "Asia/Tashkent")
+  @NotBlank
+  @Size(max = 100)
+  @Schema(description = "IANA timezone identifier", example = "Asia/Tashkent")
   private String timezone;
 }
