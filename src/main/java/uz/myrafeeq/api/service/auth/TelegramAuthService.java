@@ -94,7 +94,7 @@ public class TelegramAuthService {
 
     String dataCheckString =
         params.entrySet().stream()
-            .filter(e -> !"hash".equals(e.getKey()) && !"signature".equals(e.getKey()))
+            .filter(e -> !"hash".equals(e.getKey()))
             .sorted(Map.Entry.comparingByKey())
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("\n"));
@@ -119,10 +119,7 @@ public class TelegramAuthService {
             "HMAC mismatch: computed={}, received={}, dataCheckString keys={}",
             computedHash.substring(0, 8) + "...",
             receivedHash.substring(0, Math.min(8, receivedHash.length())) + "...",
-            params.keySet().stream()
-                .filter(k -> !"hash".equals(k) && !"signature".equals(k))
-                .sorted()
-                .toList());
+            params.keySet().stream().filter(k -> !"hash".equals(k)).sorted().toList());
         throw new InvalidAuthException("Invalid HMAC signature");
       }
     } catch (InvalidAuthException e) {
