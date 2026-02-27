@@ -15,9 +15,6 @@ public class UserResponse {
   @Schema(description = "User's first name", example = "Doston")
   private final String firstName;
 
-  @Schema(description = "User's language code", example = "uz")
-  private final String languageCode;
-
   @Schema(description = "Whether onboarding is completed", example = "false")
   private final Boolean onboardingCompleted;
 }

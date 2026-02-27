@@ -65,9 +65,7 @@ public class PrayerTimesController {
           @RequestParam(required = false, defaultValue = "1")
           @Min(1) @Max(30) int days) {
 
-    return ResponseEntity.ok()
-        .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePrivate())
-        .body(prayerTimesService.calculatePrayerTimes(telegramId, date, days));
+    return ResponseEntity.ok(prayerTimesService.calculatePrayerTimes(telegramId, date, days));
   }
 
   @GetMapping("/by-location")

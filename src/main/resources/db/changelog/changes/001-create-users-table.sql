@@ -7,7 +7,6 @@ CREATE TABLE users
     telegram_id          BIGINT                   NOT NULL PRIMARY KEY,
     first_name           VARCHAR(255)             NOT NULL,
     username             VARCHAR(255),
-    language_code        VARCHAR(10),
     onboarding_completed BOOLEAN                  NOT NULL DEFAULT FALSE,
     version              INTEGER                  NOT NULL DEFAULT 0,
     created_at           TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -22,8 +21,6 @@ COMMENT
 ON COLUMN users.first_name IS 'User first name from Telegram';
 COMMENT
 ON COLUMN users.username IS 'Telegram username (optional)';
-COMMENT
-ON COLUMN users.language_code IS 'IETF language tag from Telegram client';
 COMMENT
 ON COLUMN users.onboarding_completed IS 'Whether the user has completed the onboarding flow';
 COMMENT

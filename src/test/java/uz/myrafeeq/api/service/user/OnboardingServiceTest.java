@@ -30,9 +30,9 @@ import uz.myrafeeq.api.exception.UserNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.mapper.UserMapper;
-import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
+import uz.myrafeeq.api.service.city.CityService;
 
 @ExtendWith(MockitoExtension.class)
 class OnboardingServiceTest {
@@ -41,7 +41,7 @@ class OnboardingServiceTest {
 
   @Mock private UserRepository userRepository;
   @Mock private UserPreferencesRepository preferencesRepository;
-  @Mock private CityRepository cityRepository;
+  @Mock private CityService cityService;
   @Mock private PreferencesMapper preferencesMapper;
   @Mock private CityMapper cityMapper;
   @Mock private UserMapper userMapper;
@@ -59,7 +59,7 @@ class OnboardingServiceTest {
         new OnboardingRequest("tashkent", 41.2995, 69.2401, true, Map.of(), ReminderTiming.ON_TIME);
 
     given(userRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(user));
-    given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
+    given(cityService.getOrCreateCity("tashkent")).willReturn(city);
     given(preferencesRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
     given(userRepository.save(any())).willReturn(user);
     given(cityMapper.toCityResponse(city)).willReturn(cityResponse);
@@ -99,7 +99,8 @@ class OnboardingServiceTest {
     OnboardingRequest request = new OnboardingRequest("nonexistent", null, null, true, null, null);
 
     given(userRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(user));
-    given(cityRepository.findById("nonexistent")).willReturn(Optional.empty());
+    given(cityService.getOrCreateCity("nonexistent"))
+        .willThrow(new CityNotFoundException("City not found: nonexistent"));
 
     assertThatThrownBy(() -> onboardingService.completeOnboarding(TELEGRAM_ID, request))
         .isInstanceOf(CityNotFoundException.class);
@@ -114,7 +115,7 @@ class OnboardingServiceTest {
     OnboardingRequest request = new OnboardingRequest("tashkent", null, null, true, null, null);
 
     given(userRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(user));
-    given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
+    given(cityService.getOrCreateCity("tashkent")).willReturn(city);
     given(preferencesRepository.save(any()))
         .willAnswer(
             inv -> {
@@ -142,7 +143,7 @@ class OnboardingServiceTest {
     OnboardingRequest request = new OnboardingRequest("tashkent", null, null, true, null, null);
 
     given(userRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(user));
-    given(cityRepository.findById("tashkent")).willReturn(Optional.of(city));
+    given(cityService.getOrCreateCity("tashkent")).willReturn(city);
     given(preferencesRepository.save(any()))
         .willAnswer(
             inv -> {
@@ -165,7 +166,6 @@ class OnboardingServiceTest {
         .telegramId(TELEGRAM_ID)
         .firstName("Doston")
         .username("doston")
-        .languageCode("uz")
         .onboardingCompleted(onboarded)
         .build();
   }
@@ -205,7 +205,6 @@ class OnboardingServiceTest {
     return UserResponse.builder()
         .telegramId(TELEGRAM_ID)
         .firstName("Doston")
-        .languageCode("uz")
         .onboardingCompleted(false)
         .build();
   }

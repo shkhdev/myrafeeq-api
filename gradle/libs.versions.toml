@@ -8,6 +8,7 @@ springdoc = "3.0.1"
 testcontainers = "1.21.4"
 adhan = "1.2.1"
 archunit = "1.4.1"
+timezonemap = "4.5"
 
 [plugins]
 java = { id = "java" }
@@ -42,6 +43,7 @@ springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starte
 testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql" }
 adhan = { module = "com.batoulapps.adhan:adhan", version.ref = "adhan" }
+timezonemap = { module = "us.dustinj.timezonemap:timezonemap", version.ref = "timezonemap" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 spring-boot-data-jpa-test = { module = "org.springframework.boot:spring-boot-data-jpa-test" }
 

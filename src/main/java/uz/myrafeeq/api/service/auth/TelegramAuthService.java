@@ -26,6 +26,7 @@ import uz.myrafeeq.api.dto.response.UserResponse;
 import uz.myrafeeq.api.entity.UserEntity;
 import uz.myrafeeq.api.exception.InvalidAuthException;
 import uz.myrafeeq.api.mapper.UserMapper;
+import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
 import uz.myrafeeq.api.security.JwtTokenProvider;
 
@@ -37,6 +38,7 @@ public class TelegramAuthService {
   private static final String HMAC_SHA256 = "HmacSHA256";
 
   private final UserRepository userRepository;
+  private final UserPreferencesRepository preferencesRepository;
   private final JwtTokenProvider jwtTokenProvider;
   private final UserMapper userMapper;
   private final ObjectMapper objectMapper;
@@ -65,7 +67,8 @@ public class TelegramAuthService {
     String languageCode =
         userNode.has("language_code") ? userNode.get("language_code").asString() : "en";
 
-    UserEntity user = upsertUser(telegramId, firstName, username, languageCode);
+    UserEntity user = upsertUser(telegramId, firstName, username);
+    syncLanguageCodeToPreferences(telegramId, languageCode);
 
     String token = jwtTokenProvider.generateToken(telegramId, firstName);
     UserResponse userResponse = userMapper.toUserResponse(user);
@@ -197,20 +200,17 @@ public class TelegramAuthService {
     }
   }
 
-  private UserEntity upsertUser(
-      Long telegramId, String firstName, String username, String languageCode) {
+  private UserEntity upsertUser(Long telegramId, String firstName, String username) {
     return userRepository
         .findById(telegramId)
         .map(
             existing -> {
               boolean changed =
                   !firstName.equals(existing.getFirstName())
-                      || !Objects.equals(username, existing.getUsername())
-                      || !languageCode.equals(existing.getLanguageCode());
+                      || !Objects.equals(username, existing.getUsername());
               if (changed) {
                 existing.setFirstName(firstName);
                 existing.setUsername(username);
-                existing.setLanguageCode(languageCode);
                 return userRepository.save(existing);
               }
               return existing;
@@ -222,7 +222,18 @@ public class TelegramAuthService {
                         .telegramId(telegramId)
                         .firstName(firstName)
                         .username(username)
-                        .languageCode(languageCode)
                         .build()));
+  }
+
+  private void syncLanguageCodeToPreferences(Long telegramId, String languageCode) {
+    preferencesRepository
+        .findById(telegramId)
+        .ifPresent(
+            prefs -> {
+              if (!languageCode.equals(prefs.getLanguageCode())) {
+                prefs.setLanguageCode(languageCode);
+                preferencesRepository.save(prefs);
+              }
+            });
   }
 }

@@ -32,6 +32,7 @@ import uz.myrafeeq.api.dto.response.AuthResponse;
 import uz.myrafeeq.api.entity.UserEntity;
 import uz.myrafeeq.api.exception.InvalidAuthException;
 import uz.myrafeeq.api.mapper.UserMapper;
+import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
 import uz.myrafeeq.api.security.JwtTokenProvider;
 
@@ -42,6 +43,7 @@ class TelegramAuthServiceTest {
   private static final Long USER_TELEGRAM_ID = 123456789L;
 
   @Mock private UserRepository userRepository;
+  @Mock private UserPreferencesRepository preferencesRepository;
   @Mock private JwtTokenProvider jwtTokenProvider;
   @Mock private UserMapper userMapper;
   @Mock private Environment environment;
@@ -56,6 +58,7 @@ class TelegramAuthServiceTest {
     authService =
         new TelegramAuthService(
             userRepository,
+            preferencesRepository,
             jwtTokenProvider,
             userMapper,
             objectMapper,
@@ -103,7 +106,6 @@ class TelegramAuthServiceTest {
             .telegramId(USER_TELEGRAM_ID)
             .firstName("OldName")
             .username("doston")
-            .languageCode("uz")
             .build();
 
     given(userRepository.findById(USER_TELEGRAM_ID)).willReturn(Optional.of(existing));
@@ -125,7 +127,6 @@ class TelegramAuthServiceTest {
             .telegramId(USER_TELEGRAM_ID)
             .firstName("Doston")
             .username("doston")
-            .languageCode("uz")
             .build();
 
     given(userRepository.findById(USER_TELEGRAM_ID)).willReturn(Optional.of(existing));

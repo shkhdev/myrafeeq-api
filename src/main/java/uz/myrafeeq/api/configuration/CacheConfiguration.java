@@ -20,10 +20,13 @@ public class CacheConfiguration {
     cacheManager.setCaches(
         List.of(
             buildCache("prayerTimesByLocation", 5000, Duration.ofHours(1)),
-            buildCache("citySearch", 1000, Duration.ofHours(24)),
-            buildCache("nearestCity", 2000, Duration.ofHours(24)),
+            buildCache("citySearch", 5000, Duration.ofDays(30)),
+            buildCache("nearestCity", 5000, Duration.ofDays(30)),
             buildCache("userTimezone", 10000, Duration.ofHours(1)),
-            buildCache("prayerStats", 10000, Duration.ofMinutes(5))));
+            buildCache("prayerStats", 10000, Duration.ofMinutes(5)),
+            buildCache("nominatimSearch", 5000, Duration.ofDays(30)),
+            buildCache("nominatimLookup", 5000, Duration.ofDays(30)),
+            buildCache("nominatimReverse", 5000, Duration.ofDays(30))));
     return cacheManager;
   }
 

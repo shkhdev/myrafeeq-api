@@ -10,6 +10,9 @@ import lombok.Getter;
 @Schema(description = "User preferences")
 public class UserPreferencesResponse {
 
+  @Schema(description = "Language code", example = "en")
+  private final String languageCode;
+
   @Schema(description = "Selected city")
   private final CityResponse city;
 

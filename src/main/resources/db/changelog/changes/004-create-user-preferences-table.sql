@@ -5,6 +5,7 @@
 CREATE TABLE user_preferences
 (
     telegram_id           BIGINT                   NOT NULL PRIMARY KEY,
+    language_code         VARCHAR(10)              NOT NULL DEFAULT 'en',
     city_id               VARCHAR(100),
     latitude              DOUBLE PRECISION,
     longitude             DOUBLE PRECISION,
@@ -44,6 +45,8 @@ COMMENT
 ON TABLE user_preferences IS 'User prayer and app preferences';
 COMMENT
 ON COLUMN user_preferences.telegram_id IS 'Foreign key to users table (also primary key, 1:1 with users)';
+COMMENT
+ON COLUMN user_preferences.language_code IS 'IETF language tag from Telegram client';
 COMMENT
 ON COLUMN user_preferences.city_id IS 'Selected city for prayer calculations';
 COMMENT

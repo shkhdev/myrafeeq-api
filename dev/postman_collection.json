@@ -5,22 +5,46 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
-    { "key": "accessToken", "value": "" },
-    { "key": "adminApiKey", "value": "" },
-    { "key": "cityId", "value": "tashkent" },
-    { "key": "countryCode", "value": "UZ" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "adminApiKey",
+      "value": ""
+    },
+    {
+      "key": "cityId",
+      "value": "tashkent"
+    },
+    {
+      "key": "countryCode",
+      "value": "UZ"
+    }
   ],
   "auth": {
     "type": "bearer",
     "bearer": [
-      { "key": "token", "value": "{{accessToken}}", "type": "string" }
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
     ]
   },
   "event": [
     {
       "listen": "prerequest",
-      "script": { "type": "text/javascript", "exec": [""] }
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
     },
     {
       "listen": "test",
@@ -72,10 +96,15 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -83,8 +112,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/token",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "token"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "token"
+              ]
             },
             "description": "Validates Telegram Mini App init data, verifies HMAC signature, upserts user, and returns a JWT token valid for 24 hours.\n\n**Auto-saves** the token to `{{accessToken}}` collection variable."
           }
@@ -125,8 +161,14 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/dashboard",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "dashboard"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "dashboard"
+              ]
             },
             "description": "Returns aggregated data: today's prayer times, today's tracking status, and weekly statistics."
           }
@@ -167,8 +209,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "preferences"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "preferences"
+              ]
             },
             "description": "Returns the current user's preferences."
           }
@@ -195,7 +244,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -203,8 +255,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "preferences"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "preferences"
+              ]
             },
             "description": "Partially updates preferences. Only non-null fields are applied."
           }
@@ -237,7 +296,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -245,8 +307,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/onboarding",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "user", "onboarding"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "onboarding"
+              ]
             },
             "description": "Completes onboarding. Creates initial preferences. Can only be called once per user."
           }
@@ -288,11 +357,26 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-times?days=1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-times"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-times"
+              ],
               "query": [
-                { "key": "date", "value": "", "disabled": true, "description": "Date (defaults to today), e.g. 2026-02-27" },
-                { "key": "days", "value": "1", "description": "Number of days (1-30)" }
+                {
+                  "key": "date",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Date (defaults to today), e.g. 2026-02-27"
+                },
+                {
+                  "key": "days",
+                  "value": "1",
+                  "description": "Number of days (1-30)"
+                }
               ]
             },
             "description": "Returns prayer times based on saved preferences. Cached 5 min (private)."
@@ -322,10 +406,19 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-times?days=7",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-times"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-times"
+              ],
               "query": [
-                { "key": "days", "value": "7" }
+                {
+                  "key": "days",
+                  "value": "7"
+                }
               ]
             },
             "description": "Returns prayer times for 7 days."
@@ -358,19 +451,53 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-times/by-location?lat=41.2995&lon=69.2401&method=MWL&madhab=HANAFI&timezone=Asia/Tashkent",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-times", "by-location"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-times",
+                "by-location"
+              ],
               "query": [
-                { "key": "lat", "value": "41.2995", "description": "Latitude (-90 to 90)" },
-                { "key": "lon", "value": "69.2401", "description": "Longitude (-180 to 180)" },
-                { "key": "date", "value": "", "disabled": true, "description": "Date (defaults to today)" },
-                { "key": "method", "value": "MWL", "description": "Calculation method" },
-                { "key": "madhab", "value": "HANAFI", "description": "Madhab for Asr" },
-                { "key": "timezone", "value": "Asia/Tashkent", "description": "IANA timezone" }
+                {
+                  "key": "lat",
+                  "value": "41.2995",
+                  "description": "Latitude (-90 to 90)"
+                },
+                {
+                  "key": "lon",
+                  "value": "69.2401",
+                  "description": "Longitude (-180 to 180)"
+                },
+                {
+                  "key": "date",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Date (defaults to today)"
+                },
+                {
+                  "key": "method",
+                  "value": "MWL",
+                  "description": "Calculation method"
+                },
+                {
+                  "key": "madhab",
+                  "value": "HANAFI",
+                  "description": "Madhab for Asr"
+                },
+                {
+                  "key": "timezone",
+                  "value": "Asia/Tashkent",
+                  "description": "IANA timezone"
+                }
               ]
             },
             "description": "Public endpoint. Returns prayer times for any coordinates. Cached 1 hour."
@@ -410,10 +537,21 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-tracking",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-tracking"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-tracking"
+              ],
               "query": [
-                { "key": "date", "value": "", "disabled": true, "description": "Single date, e.g. 2026-02-27" }
+                {
+                  "key": "date",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Single date, e.g. 2026-02-27"
+                }
               ]
             },
             "description": "Returns prayer tracking data for today (or a specific date/range)."
@@ -443,11 +581,25 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-tracking?from=2026-02-20&to=2026-02-27",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-tracking"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-tracking"
+              ],
               "query": [
-                { "key": "from", "value": "2026-02-20", "description": "Range start (inclusive)" },
-                { "key": "to", "value": "2026-02-27", "description": "Range end (inclusive)" }
+                {
+                  "key": "from",
+                  "value": "2026-02-20",
+                  "description": "Range start (inclusive)"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-02-27",
+                  "description": "Range end (inclusive)"
+                }
               ]
             },
             "description": "Returns prayer tracking for a date range."
@@ -483,7 +635,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -491,8 +646,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-tracking/toggle",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-tracking", "toggle"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-tracking",
+                "toggle"
+              ]
             },
             "description": "Toggles whether a prayer was performed. Date must not be in the future and not older than 7 days."
           }
@@ -526,10 +688,21 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-tracking/stats?period=WEEK",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-tracking", "stats"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-tracking",
+                "stats"
+              ],
               "query": [
-                { "key": "period", "value": "WEEK", "description": "WEEK | MONTH | YEAR" }
+                {
+                  "key": "period",
+                  "value": "WEEK",
+                  "description": "WEEK | MONTH | YEAR"
+                }
               ]
             },
             "description": "Returns prayer completion stats for the given period."
@@ -554,10 +727,20 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/prayer-tracking/stats?period=MONTH",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "prayer-tracking", "stats"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "prayer-tracking",
+                "stats"
+              ],
               "query": [
-                { "key": "period", "value": "MONTH" }
+                {
+                  "key": "period",
+                  "value": "MONTH"
+                }
               ]
             },
             "description": "Returns prayer completion stats for the last 30 days."
@@ -595,15 +778,31 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/cities?q=Tash&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "cities"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cities"
+              ],
               "query": [
-                { "key": "q", "value": "Tash", "description": "Search query (city name prefix)" },
-                { "key": "limit", "value": "10", "description": "Max results (1-50)" }
+                {
+                  "key": "q",
+                  "value": "Tash",
+                  "description": "Search query (city name prefix)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Max results (1-50)"
+                }
               ]
             },
             "description": "Searches cities by name. Cached 24 hours."
@@ -635,15 +834,32 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/cities/nearest?lat=41.3&lon=69.25",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "cities", "nearest"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cities",
+                "nearest"
+              ],
               "query": [
-                { "key": "lat", "value": "41.3", "description": "Latitude (-90 to 90)" },
-                { "key": "lon", "value": "69.25", "description": "Longitude (-180 to 180)" }
+                {
+                  "key": "lat",
+                  "value": "41.3",
+                  "description": "Latitude (-90 to 90)"
+                },
+                {
+                  "key": "lon",
+                  "value": "69.25",
+                  "description": "Longitude (-180 to 180)"
+                }
               ]
             },
             "description": "Finds the nearest city using Haversine distance. Cached 24 hours."
@@ -657,9 +873,21 @@
       "auth": {
         "type": "apikey",
         "apikey": [
-          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
-          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
-          { "key": "in", "value": "header", "type": "string" }
+          {
+            "key": "key",
+            "value": "X-Admin-Api-Key",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "{{adminApiKey}}",
+            "type": "string"
+          },
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          }
         ]
       },
       "item": [
@@ -687,8 +915,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/countries",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "countries"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "countries"
+              ]
             },
             "description": "Returns all countries with default calculation settings."
           }
@@ -722,7 +957,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -730,8 +968,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/countries",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "countries"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "countries"
+              ]
             },
             "description": "Creates a new country with ISO 3166-1 alpha-2 code."
           }
@@ -760,8 +1005,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "countries",
+                "{{countryCode}}"
+              ]
             },
             "description": "Returns a single country by code."
           }
@@ -784,7 +1037,10 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -792,8 +1048,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "countries",
+                "{{countryCode}}"
+              ]
             },
             "description": "Updates a country's name and default settings."
           }
@@ -817,8 +1081,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/countries/{{countryCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "countries", "{{countryCode}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "countries",
+                "{{countryCode}}"
+              ]
             },
             "description": "Deletes a country."
           }
@@ -831,9 +1103,21 @@
       "auth": {
         "type": "apikey",
         "apikey": [
-          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
-          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
-          { "key": "in", "value": "header", "type": "string" }
+          {
+            "key": "key",
+            "value": "X-Admin-Api-Key",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "{{adminApiKey}}",
+            "type": "string"
+          },
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          }
         ]
       },
       "item": [
@@ -864,12 +1148,32 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities?page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities"
+              ],
               "query": [
-                { "key": "country", "value": "UZ", "disabled": true, "description": "Filter by country code" },
-                { "key": "page", "value": "0", "description": "Page number (0-based)" },
-                { "key": "size", "value": "20", "description": "Page size (1-100)" }
+                {
+                  "key": "country",
+                  "value": "UZ",
+                  "disabled": true,
+                  "description": "Filter by country code"
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Page number (0-based)"
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "description": "Page size (1-100)"
+                }
               ]
             },
             "description": "Returns a paginated list of cities, optionally filtered by country."
@@ -905,7 +1209,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -913,8 +1220,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities"
+              ]
             },
             "description": "Creates a new city. ID must be unique, lowercase, alphanumeric with hyphens/underscores."
           }
@@ -944,7 +1258,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -952,8 +1269,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities/bulk",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities", "bulk"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities",
+                "bulk"
+              ]
             },
             "description": "Creates multiple cities in one request. Up to 500 per batch."
           }
@@ -985,8 +1310,16 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities",
+                "{{cityId}}"
+              ]
             },
             "description": "Returns a single city by ID."
           }
@@ -1009,7 +1342,10 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1017,8 +1353,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities",
+                "{{cityId}}"
+              ]
             },
             "description": "Updates a city's name, coordinates, and timezone."
           }
@@ -1042,8 +1386,16 @@
             "method": "DELETE",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/cities/{{cityId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "cities", "{{cityId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "cities",
+                "{{cityId}}"
+              ]
             },
             "description": "Deletes a city."
           }
@@ -1056,9 +1408,21 @@
       "auth": {
         "type": "apikey",
         "apikey": [
-          { "key": "key", "value": "X-Admin-Api-Key", "type": "string" },
-          { "key": "value", "value": "{{adminApiKey}}", "type": "string" },
-          { "key": "in", "value": "header", "type": "string" }
+          {
+            "key": "key",
+            "value": "X-Admin-Api-Key",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "{{adminApiKey}}",
+            "type": "string"
+          },
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          }
         ]
       },
       "item": [
@@ -1090,8 +1454,15 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "stats"
+              ]
             },
             "description": "Returns platform-wide statistics."
           }

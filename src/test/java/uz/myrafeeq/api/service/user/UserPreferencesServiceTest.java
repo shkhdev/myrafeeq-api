@@ -25,6 +25,7 @@ import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
+import uz.myrafeeq.api.service.city.CityService;
 
 @ExtendWith(MockitoExtension.class)
 class UserPreferencesServiceTest {
@@ -33,6 +34,7 @@ class UserPreferencesServiceTest {
 
   @Mock private UserPreferencesRepository preferencesRepository;
   @Mock private CityRepository cityRepository;
+  @Mock private CityService cityService;
   @Mock private PreferencesMapper preferencesMapper;
   @Mock private CityMapper cityMapper;
   @InjectMocks private UserPreferencesService preferencesService;
@@ -74,7 +76,18 @@ class UserPreferencesServiceTest {
 
     UpdatePreferencesRequest request =
         new UpdatePreferencesRequest(
-            null, CalculationMethod.MWL, null, null, null, null, null, null, null, null, null);
+            null,
+            null,
+            CalculationMethod.MWL,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
     given(preferencesRepository.save(any())).willReturn(prefs);
@@ -92,7 +105,7 @@ class UserPreferencesServiceTest {
   void should_throwPreferencesNotFound_when_updateNonExisting() {
     UpdatePreferencesRequest request =
         new UpdatePreferencesRequest(
-            null, null, null, null, null, null, null, null, null, null, null);
+            null, null, null, null, null, null, null, null, null, null, null, null);
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.empty());
 
@@ -105,10 +118,11 @@ class UserPreferencesServiceTest {
     UserPreferencesEntity prefs = buildPreferencesEntity();
     UpdatePreferencesRequest request =
         new UpdatePreferencesRequest(
-            "nonexistent", null, null, null, null, null, null, null, null, null, null);
+            null, "nonexistent", null, null, null, null, null, null, null, null, null, null);
 
     given(preferencesRepository.findById(TELEGRAM_ID)).willReturn(Optional.of(prefs));
-    given(cityRepository.findById("nonexistent")).willReturn(Optional.empty());
+    given(cityService.getOrCreateCity("nonexistent"))
+        .willThrow(new CityNotFoundException("City not found: nonexistent"));
 
     assertThatThrownBy(() -> preferencesService.updatePreferences(TELEGRAM_ID, request))
         .isInstanceOf(CityNotFoundException.class)

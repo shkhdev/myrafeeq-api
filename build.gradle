@@ -44,6 +44,9 @@ dependencies {
 	// Prayer times
 	implementation libs.adhan
 
+	// Timezone lookup
+	implementation libs.timezonemap
+
 	// API Documentation
 	implementation libs.springdoc.openapi.webmvc.ui
 

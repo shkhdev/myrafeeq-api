@@ -27,12 +27,7 @@ class PrayerTrackingRepositoryTest extends RepositoryTest {
     trackingRepository.deleteAll();
     userRepository.deleteAll();
 
-    userRepository.save(
-        UserEntity.builder()
-            .telegramId(TELEGRAM_ID)
-            .firstName("Doston")
-            .languageCode("uz")
-            .build());
+    userRepository.save(UserEntity.builder().telegramId(TELEGRAM_ID).firstName("Doston").build());
 
     LocalDate today = LocalDate.now();
     Instant now = Instant.now();

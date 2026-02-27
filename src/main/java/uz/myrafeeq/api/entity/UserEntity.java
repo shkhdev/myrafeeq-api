@@ -38,9 +38,6 @@ public class UserEntity {
   @Column(length = 32)
   private String username;
 
-  @Column(length = 10)
-  private String languageCode;
-
   @Builder.Default
   @Column(nullable = false)
   private Boolean onboardingCompleted = false;

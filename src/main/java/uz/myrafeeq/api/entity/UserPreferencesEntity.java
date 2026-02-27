@@ -43,6 +43,10 @@ public class UserPreferencesEntity {
   @Column(nullable = false)
   private Long telegramId;
 
+  @Builder.Default
+  @Column(length = 10, nullable = false)
+  private String languageCode = "en";
+
   private String cityId;
 
   private Double latitude;
@@ -85,9 +89,10 @@ public class UserPreferencesEntity {
   @Column(columnDefinition = "jsonb")
   private Map<String, Boolean> prayerNotifications;
 
+  @Builder.Default
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
-  private Map<String, Integer> manualAdjustments;
+  private Map<String, Integer> manualAdjustments = Map.of();
 
   @CreatedDate
   @Column(nullable = false, updatable = false)

@@ -17,15 +17,14 @@ import uz.myrafeeq.api.enums.Madhab;
 import uz.myrafeeq.api.enums.ReminderTiming;
 import uz.myrafeeq.api.enums.ThemePreference;
 import uz.myrafeeq.api.enums.TimeFormat;
-import uz.myrafeeq.api.exception.CityNotFoundException;
 import uz.myrafeeq.api.exception.OnboardingAlreadyCompletedException;
 import uz.myrafeeq.api.exception.UserNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.mapper.UserMapper;
-import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
 import uz.myrafeeq.api.repository.UserRepository;
+import uz.myrafeeq.api.service.city.CityService;
 
 @Slf4j
 @Service
@@ -34,7 +33,7 @@ public class OnboardingService {
 
   private final UserRepository userRepository;
   private final UserPreferencesRepository preferencesRepository;
-  private final CityRepository cityRepository;
+  private final CityService cityService;
   private final PreferencesMapper preferencesMapper;
   private final CityMapper cityMapper;
   private final UserMapper userMapper;
@@ -52,10 +51,7 @@ public class OnboardingService {
           "Onboarding already completed for user: " + telegramId);
     }
 
-    CityEntity city =
-        cityRepository
-            .findById(request.getCityId())
-            .orElseThrow(() -> new CityNotFoundException("City not found: " + request.getCityId()));
+    CityEntity city = cityService.getOrCreateCity(request.getCityId());
 
     CalculationMethod method =
         city.getCountry() != null && city.getCountry().getDefaultMethod() != null

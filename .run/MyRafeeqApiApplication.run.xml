@@ -1,13 +1,14 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MyRafeeqApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="dev" />
-    <option name="envFilePaths">
-      <option value="$PROJECT_DIR$/.env" />
-    </option>
-    <module name="myrafeeq-api.main" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="uz.myrafeeq.api.MyRafeeqApiApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
+    <configuration default="false" name="MyRafeeqApiApplication" type="SpringBootApplicationConfigurationType"
+                   factoryName="Spring Boot">
+        <option name="ACTIVE_PROFILES" value="dev"/>
+        <option name="envFilePaths">
+            <option value="$PROJECT_DIR$/.env"/>
+        </option>
+        <module name="myrafeeq-api.main"/>
+        <option name="SPRING_BOOT_MAIN_CLASS" value="uz.myrafeeq.api.MyRafeeqApiApplication"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
 </component>

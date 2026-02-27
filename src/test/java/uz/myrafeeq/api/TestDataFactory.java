@@ -46,7 +46,6 @@ public final class TestDataFactory {
         .telegramId(TELEGRAM_ID)
         .firstName("Doston")
         .username("doston")
-        .languageCode("uz")
         .onboardingCompleted(false);
   }
 
@@ -56,6 +55,7 @@ public final class TestDataFactory {
         .cityId("tashkent")
         .latitude(TASHKENT_LAT)
         .longitude(TASHKENT_LON)
+        .languageCode("uz")
         .calculationMethod(CalculationMethod.MBOUZ)
         .madhab(Madhab.HANAFI)
         .highLatitudeRule(HighLatitudeRule.MIDDLE_OF_NIGHT)
@@ -87,12 +87,12 @@ public final class TestDataFactory {
     return UserResponse.builder()
         .telegramId(TELEGRAM_ID)
         .firstName("Doston")
-        .languageCode("uz")
         .onboardingCompleted(false);
   }
 
   public static UserPreferencesResponse.UserPreferencesResponseBuilder aPreferencesResponse() {
     return UserPreferencesResponse.builder()
+        .languageCode("uz")
         .calculationMethod("MBOUZ")
         .madhab("HANAFI")
         .hijriCorrection(0);

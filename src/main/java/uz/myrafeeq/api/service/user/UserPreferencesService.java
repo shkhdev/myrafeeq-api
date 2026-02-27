@@ -9,12 +9,12 @@ import uz.myrafeeq.api.dto.request.UpdatePreferencesRequest;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.UserPreferencesResponse;
 import uz.myrafeeq.api.entity.UserPreferencesEntity;
-import uz.myrafeeq.api.exception.CityNotFoundException;
 import uz.myrafeeq.api.exception.PreferencesNotFoundException;
 import uz.myrafeeq.api.mapper.CityMapper;
 import uz.myrafeeq.api.mapper.PreferencesMapper;
 import uz.myrafeeq.api.repository.CityRepository;
 import uz.myrafeeq.api.repository.UserPreferencesRepository;
+import uz.myrafeeq.api.service.city.CityService;
 
 @Slf4j
 @Service
@@ -23,6 +23,7 @@ public class UserPreferencesService {
 
   private final UserPreferencesRepository preferencesRepository;
   private final CityRepository cityRepository;
+  private final CityService cityService;
   private final PreferencesMapper preferencesMapper;
   private final CityMapper cityMapper;
 
@@ -62,10 +63,11 @@ public class UserPreferencesService {
   }
 
   private void applyPartialUpdate(UserPreferencesEntity prefs, UpdatePreferencesRequest request) {
+    if (request.getLanguageCode() != null) {
+      prefs.setLanguageCode(request.getLanguageCode());
+    }
     if (request.getCityId() != null) {
-      cityRepository
-          .findById(request.getCityId())
-          .orElseThrow(() -> new CityNotFoundException("City not found: " + request.getCityId()));
+      cityService.getOrCreateCity(request.getCityId());
       prefs.setCityId(request.getCityId());
     }
     if (request.getCalculationMethod() != null) {

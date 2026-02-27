@@ -21,6 +21,9 @@ import uz.myrafeeq.api.enums.TimeFormat;
 @Schema(description = "Request to update user preferences (all fields optional)")
 public class UpdatePreferencesRequest {
 
+  @Size(max = 10) @Schema(description = "Language code", example = "en")
+  private String languageCode;
+
   @Size(min = 1, max = 50) @Schema(description = "City ID", example = "tashkent")
   private String cityId;
 

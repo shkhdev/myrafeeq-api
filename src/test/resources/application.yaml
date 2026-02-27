@@ -40,3 +40,9 @@ myrafeeq:
     enabled: false
     requests-per-minute: 1000
     auth-requests-per-minute: 100
+  nominatim:
+    url: https://nominatim.openstreetmap.org
+    user-agent: MyRafeeq-Test/1.0
+    max-distance-km: 50.0
+    default-method: MWL
+    default-madhab: HANAFI
