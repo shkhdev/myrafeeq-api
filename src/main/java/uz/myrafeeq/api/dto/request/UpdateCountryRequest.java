@@ -15,9 +15,7 @@ import uz.myrafeeq.api.enums.Madhab;
 @Schema(description = "Request to update a country")
 public class UpdateCountryRequest {
 
-  @NotBlank
-  @Size(max = 100)
-  @Schema(description = "Country name in English", example = "Uzbekistan")
+  @NotBlank @Size(max = 100) @Schema(description = "Country name in English", example = "Uzbekistan")
   private String name;
 
   @Schema(description = "Default prayer calculation method", example = "MBOUZ")

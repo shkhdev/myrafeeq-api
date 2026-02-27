@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.java)
-    alias(libs.plugins.jacoco)
-    alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.lombok)
+	alias(libs.plugins.java)
+	alias(libs.plugins.jacoco)
+	alias(libs.plugins.spring.boot)
+	alias(libs.plugins.spotless)
+	alias(libs.plugins.lombok)
 }
 
 group = 'uz.myrafeeq'
@@ -11,96 +11,96 @@ version = '0.0.1'
 description = 'myrafeeq-api'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    // BOMs
-    implementation platform(libs.spring.boot.dependencies)
-    testImplementation enforcedPlatform(libs.testcontainers.bom)
+	// BOMs
+	implementation platform(libs.spring.boot.dependencies)
+	testImplementation enforcedPlatform(libs.testcontainers.bom)
 
-    // Spring Boot starters
-    implementation libs.spring.boot.starter.web
-    implementation libs.spring.boot.starter.validation
-    implementation libs.spring.boot.starter.security
-    implementation libs.spring.boot.starter.data.jpa
-    implementation libs.spring.boot.starter.liquibase
-    implementation libs.spring.boot.starter.actuator
-    implementation libs.spring.boot.starter.cache
-    implementation libs.caffeine
-    runtimeOnly libs.postgresql
-    runtimeOnly libs.micrometer.registry.prometheus
+	// Spring Boot starters
+	implementation libs.spring.boot.starter.web
+	implementation libs.spring.boot.starter.validation
+	implementation libs.spring.boot.starter.security
+	implementation libs.spring.boot.starter.data.jpa
+	implementation libs.spring.boot.starter.liquibase
+	implementation libs.spring.boot.starter.actuator
+	implementation libs.spring.boot.starter.cache
+	implementation libs.caffeine
+	runtimeOnly libs.postgresql
+	runtimeOnly libs.micrometer.registry.prometheus
 
-    // MapStruct
-    implementation libs.mapstruct
-    annotationProcessor libs.bundles.mapstruct.processors
+	// MapStruct
+	implementation libs.mapstruct
+	annotationProcessor libs.bundles.mapstruct.processors
 
-    // Prayer times
-    implementation libs.adhan
+	// Prayer times
+	implementation libs.adhan
 
-    // API Documentation
-    implementation libs.springdoc.openapi.webmvc.ui
+	// API Documentation
+	implementation libs.springdoc.openapi.webmvc.ui
 
-    // JWT
-    implementation libs.jjwt.api
-    runtimeOnly libs.bundles.jjwt.runtime
+	// JWT
+	implementation libs.jjwt.api
+	runtimeOnly libs.bundles.jjwt.runtime
 
-    // Testing
-    testImplementation libs.spring.boot.starter.test
-    testImplementation libs.spring.boot.starter.webmvc.test
-    testImplementation libs.spring.security.test
-    testImplementation libs.bundles.testcontainers
-    testImplementation libs.archunit.junit5
-    testImplementation libs.spring.boot.data.jpa.test
+	// Testing
+	testImplementation libs.spring.boot.starter.test
+	testImplementation libs.spring.boot.starter.webmvc.test
+	testImplementation libs.spring.security.test
+	testImplementation libs.bundles.testcontainers
+	testImplementation libs.archunit.junit5
+	testImplementation libs.spring.boot.data.jpa.test
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-    }
+	dependsOn test
+	reports {
+		xml.required = true
+	}
 }
 
 jacocoTestCoverageVerification {
-    dependsOn jacocoTestReport
-    violationRules {
-        rule {
-            limit {
-                counter = 'LINE'
-                minimum = 0.60
-            }
-        }
-    }
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				minimum = 0.60
+			}
+		}
+	}
 }
 
 tasks.named('check') {
-    dependsOn jacocoTestCoverageVerification
+	dependsOn jacocoTestCoverageVerification
 }
 
 spotless {
-    format 'misc', {
-        target '*.gradle', '.gitattributes', '.gitignore'
-        trimTrailingWhitespace()
-        leadingSpacesToTabs()
-        endWithNewline()
-    }
-    java {
-        importOrder()
-        removeUnusedImports()
-        forbidWildcardImports()
-        forbidModuleImports()
-        googleJavaFormat()
-        formatAnnotations()
-    }
+	format 'misc', {
+		target '*.gradle', '.gitattributes', '.gitignore'
+		trimTrailingWhitespace()
+		leadingSpacesToTabs()
+		endWithNewline()
+	}
+	java {
+		importOrder()
+		removeUnusedImports()
+		forbidWildcardImports()
+		forbidModuleImports()
+		googleJavaFormat()
+		formatAnnotations()
+	}
 }

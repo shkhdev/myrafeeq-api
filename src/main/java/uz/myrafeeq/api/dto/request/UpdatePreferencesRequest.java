@@ -21,8 +21,7 @@ import uz.myrafeeq.api.enums.TimeFormat;
 @Schema(description = "Request to update user preferences (all fields optional)")
 public class UpdatePreferencesRequest {
 
-  @Size(min = 1, max = 50)
-  @Schema(description = "City ID", example = "tashkent")
+  @Size(min = 1, max = 50) @Schema(description = "City ID", example = "tashkent")
   private String cityId;
 
   @Schema(description = "Prayer calculation method", example = "MWL")
@@ -34,9 +33,7 @@ public class UpdatePreferencesRequest {
   @Schema(description = "High latitude adjustment rule", example = "MIDDLE_OF_NIGHT")
   private HighLatitudeRule highLatitudeRule;
 
-  @Min(-2)
-  @Max(2)
-  @Schema(description = "Hijri date correction (-2 to +2)", example = "0")
+  @Min(-2) @Max(2) @Schema(description = "Hijri date correction (-2 to +2)", example = "0")
   private Integer hijriCorrection;
 
   @Schema(description = "Time display format", example = "24h")
@@ -51,11 +48,9 @@ public class UpdatePreferencesRequest {
   @Schema(description = "Reminder timing preference", example = "FIVE_MIN")
   private ReminderTiming reminderTiming;
 
-  @Size(max = 10)
-  @Schema(description = "Per-prayer notification settings")
+  @Size(max = 10) @Schema(description = "Per-prayer notification settings")
   private Map<String, Boolean> prayerNotifications;
 
-  @Size(max = 10)
-  @Schema(description = "Per-prayer manual time adjustments in minutes")
+  @Size(max = 10) @Schema(description = "Per-prayer manual time adjustments in minutes")
   private Map<String, Integer> manualAdjustments;
 }

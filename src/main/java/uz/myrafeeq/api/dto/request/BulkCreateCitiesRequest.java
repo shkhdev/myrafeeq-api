@@ -15,9 +15,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Request to bulk create cities")
 public class BulkCreateCitiesRequest {
 
-  @NotEmpty
-  @Size(max = 500)
-  @Valid
-  @Schema(description = "List of cities to create")
+  @NotEmpty @Size(max = 500) @Valid @Schema(description = "List of cities to create")
   private List<CreateCityRequest> cities;
 }

@@ -18,27 +18,19 @@ import uz.myrafeeq.api.enums.ReminderTiming;
 @Schema(description = "Request to complete user onboarding")
 public class OnboardingRequest {
 
-  @NotBlank
-  @Size(max = 50)
-  @Schema(description = "Selected city ID", example = "tashkent")
+  @NotBlank @Size(max = 50) @Schema(description = "Selected city ID", example = "tashkent")
   private String cityId;
 
-  @DecimalMin("-90")
-  @DecimalMax("90")
-  @Schema(description = "User latitude", example = "41.2995")
+  @DecimalMin("-90") @DecimalMax("90") @Schema(description = "User latitude", example = "41.2995")
   private Double latitude;
 
-  @DecimalMin("-180")
-  @DecimalMax("180")
-  @Schema(description = "User longitude", example = "69.2401")
+  @DecimalMin("-180") @DecimalMax("180") @Schema(description = "User longitude", example = "69.2401")
   private Double longitude;
 
-  @NotNull
-  @Schema(description = "Whether notifications are enabled", example = "true")
+  @NotNull @Schema(description = "Whether notifications are enabled", example = "true")
   private Boolean notificationsEnabled;
 
-  @Size(max = 10)
-  @Schema(description = "Per-prayer notification settings")
+  @Size(max = 10) @Schema(description = "Per-prayer notification settings")
   private Map<String, Boolean> prayerNotifications;
 
   @Schema(description = "Reminder timing preference", example = "ON_TIME")

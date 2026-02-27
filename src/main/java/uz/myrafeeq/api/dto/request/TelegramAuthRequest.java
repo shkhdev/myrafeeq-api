@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Request to authenticate via Telegram Mini App init data")
 public class TelegramAuthRequest {
 
-  @NotBlank
-  @Size(max = 4096, message = "Init data too large")
-  @Schema(description = "Telegram Mini App init data string", example = "query_id=AAH...")
+  @NotBlank @Size(max = 4096, message = "Init data too large") @Schema(description = "Telegram Mini App init data string", example = "query_id=AAH...")
   private String initData;
 }

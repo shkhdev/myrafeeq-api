@@ -16,15 +16,10 @@ import uz.myrafeeq.api.enums.Madhab;
 @Schema(description = "Request to create a country")
 public class CreateCountryRequest {
 
-  @NotBlank
-  @Size(min = 2, max = 2)
-  @Pattern(regexp = "^[A-Z]{2}$", message = "Must be a 2-letter uppercase ISO country code")
-  @Schema(description = "ISO 3166-1 alpha-2 country code", example = "UZ")
+  @NotBlank @Size(min = 2, max = 2) @Pattern(regexp = "^[A-Z]{2}$", message = "Must be a 2-letter uppercase ISO country code") @Schema(description = "ISO 3166-1 alpha-2 country code", example = "UZ")
   private String code;
 
-  @NotBlank
-  @Size(max = 100)
-  @Schema(description = "Country name in English", example = "Uzbekistan")
+  @NotBlank @Size(max = 100) @Schema(description = "Country name in English", example = "Uzbekistan")
   private String name;
 
   @Schema(description = "Default prayer calculation method", example = "MBOUZ")

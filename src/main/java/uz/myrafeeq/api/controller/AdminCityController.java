@@ -47,13 +47,10 @@ public class AdminCityController {
   public ResponseEntity<Page<AdminCityResponse>> listCities(
       @Parameter(description = "Filter by country code") @RequestParam(required = false)
           String country,
-      @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0)
-          int page,
+      @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0) int page,
       @Parameter(description = "Page size (1-100)")
           @RequestParam(defaultValue = "20")
-          @Min(1)
-          @Max(100)
-          int size) {
+          @Min(1) @Max(100) int size) {
     return ResponseEntity.ok(cityService.listCities(country, page, size));
   }
 
