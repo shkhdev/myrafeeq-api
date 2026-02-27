@@ -66,7 +66,7 @@ logging:
 myrafeeq:
   cors:
     allowed-origins:
-      - "https://web.telegram.org"
+      - "https://myrafeeq-app.shokhrukh.workers.dev"
   jwt:
     secret: ${JWT_SECRET}
     ttl: PT24H
