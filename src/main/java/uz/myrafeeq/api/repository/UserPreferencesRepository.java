@@ -5,4 +5,7 @@ import org.springframework.stereotype.Repository;
 import uz.myrafeeq.api.entity.UserPreferencesEntity;
 
 @Repository
-public interface UserPreferencesRepository extends JpaRepository<UserPreferencesEntity, Long> {}
+public interface UserPreferencesRepository extends JpaRepository<UserPreferencesEntity, Long> {
+
+  boolean existsByCityId(String cityId);
+}

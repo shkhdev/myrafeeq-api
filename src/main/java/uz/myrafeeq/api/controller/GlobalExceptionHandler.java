@@ -13,6 +13,7 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -20,6 +21,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uz.myrafeeq.api.dto.response.ErrorResponse;
 import uz.myrafeeq.api.exception.CityNotFoundException;
+import uz.myrafeeq.api.exception.CountryNotFoundException;
 import uz.myrafeeq.api.exception.InvalidAuthException;
 import uz.myrafeeq.api.exception.MyRafeeqException;
 import uz.myrafeeq.api.exception.OnboardingAlreadyCompletedException;
@@ -41,6 +43,7 @@ public class GlobalExceptionHandler {
           case UserNotFoundException _ -> HttpStatus.NOT_FOUND;
           case PreferencesNotFoundException _ -> HttpStatus.NOT_FOUND;
           case CityNotFoundException _ -> HttpStatus.NOT_FOUND;
+          case CountryNotFoundException _ -> HttpStatus.NOT_FOUND;
           case TrackingValidationException _ -> HttpStatus.BAD_REQUEST;
           case OnboardingAlreadyCompletedException _ -> HttpStatus.CONFLICT;
           case RequestValidationException _ -> HttpStatus.BAD_REQUEST;
@@ -67,6 +70,19 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ErrorResponse.ofValidation(fieldErrors, Instant.now(), request.getRequestURI()));
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+      MissingServletRequestParameterException ex, HttpServletRequest request) {
+    log.warn("Missing required parameter '{}': {}", ex.getParameterName(), ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            error(
+                "MISSING_PARAMETER",
+                "Required parameter '" + ex.getParameterName() + "' is missing",
+                request));
   }
 
   @ExceptionHandler(HandlerMethodValidationException.class)

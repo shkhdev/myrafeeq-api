@@ -52,6 +52,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getServletPath();
+    if (path.startsWith(AdminApiKeyFilter.ADMIN_PATH_PREFIX)) {
+      return true;
+    }
     for (String pattern : SecurityConfiguration.PUBLIC_PATHS) {
       if (pathMatcher.match(pattern, path)) {
         return true;

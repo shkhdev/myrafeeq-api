@@ -20,12 +20,19 @@ CREATE TABLE prayer_tracking
 
 CREATE INDEX idx_tracking_telegram_date ON prayer_tracking (telegram_id, prayer_date);
 
-COMMENT ON TABLE prayer_tracking IS 'Daily prayer completion tracking';
-COMMENT ON COLUMN prayer_tracking.telegram_id IS 'Foreign key to users table';
-COMMENT ON COLUMN prayer_tracking.prayer_date IS 'Date of the prayer';
-COMMENT ON COLUMN prayer_tracking.prayer_name IS 'Prayer name (FAJR, DHUHR, ASR, MAGHRIB, ISHA)';
-COMMENT ON COLUMN prayer_tracking.prayed IS 'Whether the prayer was performed';
-COMMENT ON COLUMN prayer_tracking.toggled_at IS 'Timestamp when the status was last toggled';
-COMMENT ON COLUMN prayer_tracking.created_at IS 'Timestamp (UTC) when record was created';
+COMMENT
+ON TABLE prayer_tracking IS 'Daily prayer completion tracking';
+COMMENT
+ON COLUMN prayer_tracking.telegram_id IS 'Foreign key to users table';
+COMMENT
+ON COLUMN prayer_tracking.prayer_date IS 'Date of the prayer';
+COMMENT
+ON COLUMN prayer_tracking.prayer_name IS 'Prayer name (FAJR, DHUHR, ASR, MAGHRIB, ISHA)';
+COMMENT
+ON COLUMN prayer_tracking.prayed IS 'Whether the prayer was performed';
+COMMENT
+ON COLUMN prayer_tracking.toggled_at IS 'Timestamp when the status was last toggled';
+COMMENT
+ON COLUMN prayer_tracking.created_at IS 'Timestamp (UTC) when record was created';
 
 --rollback DROP TABLE prayer_tracking CASCADE;

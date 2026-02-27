@@ -34,6 +34,8 @@ myrafeeq:
   telegram:
     bot-token: test-bot-token
     auth-data-ttl: PT5M
+  admin:
+    api-key: test-admin-api-key
   rate-limit:
     enabled: false
     requests-per-minute: 1000

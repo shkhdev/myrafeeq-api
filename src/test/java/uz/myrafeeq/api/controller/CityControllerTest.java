@@ -12,6 +12,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uz.myrafeeq.api.configuration.AdminProperties;
 import uz.myrafeeq.api.configuration.RateLimitProperties;
 import uz.myrafeeq.api.dto.response.CityResponse;
 import uz.myrafeeq.api.dto.response.CitySearchResponse;
@@ -27,6 +28,7 @@ class CityControllerTest {
   @MockitoBean private CityService cityService;
   @MockitoBean private JwtTokenProvider jwtTokenProvider;
   @MockitoBean private RateLimitProperties rateLimitProperties;
+  @MockitoBean private AdminProperties adminProperties;
 
   @Test
   @WithMockUser
@@ -107,7 +109,7 @@ class CityControllerTest {
   @Test
   @WithMockUser
   void should_returnError_when_missingRequiredQueryParam() throws Exception {
-    mockMvc.perform(get("/api/v1/cities")).andExpect(status().is5xxServerError());
+    mockMvc.perform(get("/api/v1/cities")).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -115,6 +117,6 @@ class CityControllerTest {
   void should_returnError_when_missingLatLon() throws Exception {
     mockMvc
         .perform(get("/api/v1/cities/nearest").param("lat", "41.3"))
-        .andExpect(status().is5xxServerError());
+        .andExpect(status().isBadRequest());
   }
 }

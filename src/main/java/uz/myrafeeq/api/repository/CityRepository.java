@@ -2,6 +2,7 @@ package uz.myrafeeq.api.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,15 @@ import uz.myrafeeq.api.entity.CityEntity;
 
 @Repository
 public interface CityRepository extends JpaRepository<CityEntity, String> {
+
+  boolean existsByCountryCode(String countryCode);
+
+  @EntityGraph(attributePaths = "country")
+  Page<CityEntity> findByCountryCode(String countryCode, Pageable pageable);
+
+  @EntityGraph(attributePaths = "country")
+  @Query("SELECT c FROM CityEntity c")
+  Page<CityEntity> findAllWithCountry(Pageable pageable);
 
   @Override
   @EntityGraph(attributePaths = "country")

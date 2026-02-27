@@ -40,18 +40,31 @@ CREATE TABLE user_preferences
 
 CREATE INDEX idx_preferences_city_id ON user_preferences (city_id);
 
-COMMENT ON TABLE user_preferences IS 'User prayer and app preferences';
-COMMENT ON COLUMN user_preferences.telegram_id IS 'Foreign key to users table (also primary key, 1:1 with users)';
-COMMENT ON COLUMN user_preferences.city_id IS 'Selected city for prayer calculations';
-COMMENT ON COLUMN user_preferences.calculation_method IS 'Prayer time calculation method';
-COMMENT ON COLUMN user_preferences.madhab IS 'Juristic method for Asr (SHAFI or HANAFI)';
-COMMENT ON COLUMN user_preferences.high_latitude_rule IS 'Adjustment rule for high latitudes';
-COMMENT ON COLUMN user_preferences.hijri_correction IS 'Manual Hijri date correction (-2 to +2)';
-COMMENT ON COLUMN user_preferences.time_format IS 'Time display format (TWELVE_HOUR or TWENTY_FOUR_HOUR)';
-COMMENT ON COLUMN user_preferences.theme IS 'UI theme preference';
-COMMENT ON COLUMN user_preferences.notifications_enabled IS 'Whether push notifications are enabled';
-COMMENT ON COLUMN user_preferences.reminder_timing IS 'When to send prayer reminders';
-COMMENT ON COLUMN user_preferences.prayer_notifications IS 'Per-prayer notification toggle (JSON object)';
-COMMENT ON COLUMN user_preferences.manual_adjustments IS 'Per-prayer time adjustments in minutes (JSON object)';
+COMMENT
+ON TABLE user_preferences IS 'User prayer and app preferences';
+COMMENT
+ON COLUMN user_preferences.telegram_id IS 'Foreign key to users table (also primary key, 1:1 with users)';
+COMMENT
+ON COLUMN user_preferences.city_id IS 'Selected city for prayer calculations';
+COMMENT
+ON COLUMN user_preferences.calculation_method IS 'Prayer time calculation method';
+COMMENT
+ON COLUMN user_preferences.madhab IS 'Juristic method for Asr (SHAFI or HANAFI)';
+COMMENT
+ON COLUMN user_preferences.high_latitude_rule IS 'Adjustment rule for high latitudes';
+COMMENT
+ON COLUMN user_preferences.hijri_correction IS 'Manual Hijri date correction (-2 to +2)';
+COMMENT
+ON COLUMN user_preferences.time_format IS 'Time display format (TWELVE_HOUR or TWENTY_FOUR_HOUR)';
+COMMENT
+ON COLUMN user_preferences.theme IS 'UI theme preference';
+COMMENT
+ON COLUMN user_preferences.notifications_enabled IS 'Whether push notifications are enabled';
+COMMENT
+ON COLUMN user_preferences.reminder_timing IS 'When to send prayer reminders';
+COMMENT
+ON COLUMN user_preferences.prayer_notifications IS 'Per-prayer notification toggle (JSON object)';
+COMMENT
+ON COLUMN user_preferences.manual_adjustments IS 'Per-prayer time adjustments in minutes (JSON object)';
 
 --rollback DROP TABLE user_preferences CASCADE;

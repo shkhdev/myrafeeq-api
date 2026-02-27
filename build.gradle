@@ -56,6 +56,8 @@ dependencies {
 	testImplementation libs.spring.boot.starter.webmvc.test
 	testImplementation libs.spring.security.test
 	testImplementation libs.bundles.testcontainers
+	testImplementation libs.archunit.junit5
+	testImplementation libs.spring.boot.data.jpa.test
 }
 
 tasks.named('test') {
@@ -68,6 +70,22 @@ jacocoTestReport {
 	reports {
 		xml.required = true
 	}
+}
+
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				minimum = 0.60
+			}
+		}
+	}
+}
+
+tasks.named('check') {
+	dependsOn jacocoTestCoverageVerification
 }
 
 spotless {

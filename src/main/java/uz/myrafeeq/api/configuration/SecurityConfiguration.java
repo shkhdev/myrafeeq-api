@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.dto.response.ErrorResponse;
+import uz.myrafeeq.api.security.AdminApiKeyFilter;
 import uz.myrafeeq.api.security.JwtAuthFilter;
 
 @Configuration
@@ -36,6 +37,7 @@ public class SecurityConfiguration {
   };
 
   private final JwtAuthFilter jwtAuthFilter;
+  private final AdminApiKeyFilter adminApiKeyFilter;
   private final CorsProperties corsProperties;
   private final ObjectMapper objectMapper;
 
@@ -46,7 +48,14 @@ public class SecurityConfiguration {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers(PUBLIC_PATHS).permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers(PUBLIC_PATHS)
+                    .permitAll()
+                    .requestMatchers("/api/v1/admin/**")
+                    .hasAuthority("ADMIN")
+                    .anyRequest()
+                    .authenticated())
+        .addFilterBefore(adminApiKeyFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
             ex ->
@@ -71,7 +80,12 @@ public class SecurityConfiguration {
     config.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(
-        List.of("Authorization", "Content-Type", "X-Request-Id", "Ngrok-Skip-Browser-Warning"));
+        List.of(
+            "Authorization",
+            "Content-Type",
+            "X-Request-Id",
+            "X-Admin-Api-Key",
+            "Ngrok-Skip-Browser-Warning"));
     config.setExposedHeaders(List.of("X-Request-Id"));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
