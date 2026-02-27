@@ -42,10 +42,7 @@ public class TelegramAuthService {
 
   @Transactional
   public AuthResponse authenticate(TelegramAuthRequest request) {
-    log.debug("Authenticating initData (length={})", request.getInitData().length());
-
     Map<String, String> params = parseInitData(request.getInitData());
-    log.debug("Parsed initData keys: {}", params.keySet());
 
     verifyHmac(params);
     verifyAuthDate(params);
