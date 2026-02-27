@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import tools.jackson.databind.ObjectMapper;
 import uz.myrafeeq.api.configuration.TelegramProperties;
 import uz.myrafeeq.api.dto.request.TelegramAuthRequest;
@@ -43,6 +44,7 @@ class TelegramAuthServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private JwtTokenProvider jwtTokenProvider;
   @Mock private UserMapper userMapper;
+  @Mock private Environment environment;
 
   private TelegramAuthService authService;
 
@@ -53,7 +55,12 @@ class TelegramAuthServiceTest {
     ObjectMapper objectMapper = new ObjectMapper();
     authService =
         new TelegramAuthService(
-            userRepository, jwtTokenProvider, userMapper, objectMapper, telegramProperties);
+            userRepository,
+            jwtTokenProvider,
+            userMapper,
+            objectMapper,
+            telegramProperties,
+            environment);
   }
 
   @Test

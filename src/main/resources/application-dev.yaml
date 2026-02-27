@@ -13,5 +13,4 @@ logging:
 myrafeeq:
   cors:
     allowed-origins:
-      - "https://web.telegram.org"
       - "http://localhost:*"

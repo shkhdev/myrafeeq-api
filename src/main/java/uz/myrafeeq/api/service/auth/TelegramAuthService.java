@@ -12,6 +12,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -39,13 +41,16 @@ public class TelegramAuthService {
   private final UserMapper userMapper;
   private final ObjectMapper objectMapper;
   private final TelegramProperties telegramProperties;
+  private final Environment environment;
 
   @Transactional
   public AuthResponse authenticate(TelegramAuthRequest request) {
     Map<String, String> params = parseInitData(request.getInitData());
 
     verifyHmac(params);
-    verifyAuthDate(params);
+    if (!isDevBypass(params)) {
+      verifyAuthDate(params);
+    }
 
     JsonNode userNode = parseUserJson(params.get("user"));
 
@@ -68,6 +73,10 @@ public class TelegramAuthService {
     return AuthResponse.builder().token(token).user(userResponse).build();
   }
 
+  private boolean isDevBypass(Map<String, String> params) {
+    return "dev".equals(params.get("hash")) && environment.acceptsProfiles(Profiles.of("dev"));
+  }
+
   private Map<String, String> parseInitData(String initData) {
     try {
       return Arrays.stream(initData.split("&"))
@@ -87,6 +96,11 @@ public class TelegramAuthService {
     if (receivedHash == null || receivedHash.isBlank()) {
       log.warn("Missing hash in init data. Available keys: {}", params.keySet());
       throw new InvalidAuthException("Missing hash in init data");
+    }
+
+    if (isDevBypass(params)) {
+      log.debug("Dev mode: skipping HMAC validation");
+      return;
     }
 
     String dataCheckString =
